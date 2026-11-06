@@ -1,23 +1,26 @@
 # Roadmap
 
+Checked items below are built and self-checked. Independent Check is a separate
+gate recorded in `docs/agents/checks.md`; no physical-device acceptance is implied.
+
 ## Phase 0 — Foundation
 
-- [ ] Create Xcode project
-- [ ] Configure Git repository
-- [ ] Establish architecture
-- [ ] Create design system
-- [ ] Verify simulator build
+- [x] Create Xcode project
+- [x] Configure Git repository
+- [x] Establish architecture
+- [x] Create initial native design system
+- [x] Verify simulator build
 
 ## Phase 1 — Core MVP
 
-- [ ] Transaction model
-- [ ] SwiftData persistence
-- [ ] Quick Entry
-- [ ] Dashboard
+- [x] Transaction model
+- [x] SwiftData persistence
+- [x] Quick Entry
+- [x] Dashboard
 - [ ] Transaction history
 - [ ] Edit and delete
-- [ ] Spending calculations
-- [ ] Automated tests
+- [x] Spending calculations
+- [x] Automated tests
 
 ## Phase 2 — iPhone Integration
 

@@ -33,3 +33,51 @@ Decision: Git repository with Markdown docs.
 
 Reason: Maintain clear, portable context
 for development and coding agents.
+
+## 006 — First Vertical Slice
+
+Decision: Build Quick Entry → local SwiftData → Dashboard before Action Button,
+full history, editing/deleting, export, and reflection. The owner approved
+`docs/PLAN.md` with “go” on 2026-11-06.
+
+Reason: Prove deliberate logging, persistence, and visible totals first.
+
+## 007 — Exact USD Cents
+
+Decision: This slice records positive USD purchases as Int64 cents, parsed
+without floating-point arithmetic or silent rounding. Decimal formatting always
+uses USD. Check both conversion and aggregation for overflow.
+
+Reason: Keep amounts exact and avoid combining currencies without conversion.
+Currency settings and refunds remain outside this approved slice.
+
+## 008 — Visible Entry Defaults
+
+Decision: Category defaults to Other, spending type to Planned, and date/time to
+opening Quick Entry. Category and type remain editable before saving; notes are
+optional. A blank merchant/description cannot be saved.
+
+Reason: Keep manual entry intentional while avoiding unnecessary steps. These
+defaults were included in the approved plan and need user validation later.
+
+## 009 — Explicit Local Saves
+
+Decision: Disable CloudKit and autosave. Save only after the user presses Save;
+keep unsaved input on failure, prevent the same draft from saving twice, and
+offer retry without deleting or replacing the journal.
+
+Reason: Cancel must create no record; storage failures must remain visible and
+must not cause silent data loss. Separate identical purchases remain valid.
+
+Reference: Apple's [ModelConfiguration documentation](https://developer.apple.com/documentation/swiftdata/modelconfiguration)
+and [CloudKitDatabase.none](https://developer.apple.com/documentation/swiftdata/modelconfiguration/cloudkitdatabase-swift.struct/none).
+
+## 010 — Calendar Periods
+
+Decision: Daily, weekly, and monthly summaries use the user's current calendar
+and time zone. Category and intention totals explicitly cover this month.
+
+Reason: A week can cross a month/year and a day can span a daylight-saving
+change. Fixed 24-hour or seven-day subtraction is insufficient.
+
+Reference: Apple's [Calendar.dateInterval documentation](https://developer.apple.com/documentation/foundation/calendar/dateinterval(of:for:)).

@@ -43,6 +43,35 @@ Intentional spending without shame.
 
 ## Status
 
-Planning and project initialization.
+First vertical slice built on `quick-entry-dashboard`:
+Quick Entry → local SwiftData → Dashboard. Build verification and independent
+Check are separate; see `docs/agents/` for the recorded state when available.
+
+This slice uses USD, positive purchase amounts, and visible Other / Planned
+defaults. Action Button integration, history/edit/delete, CSV export, and weekly
+reflection remain later work. There are no third-party app dependencies.
+
+## Open and Run
+
+Open `ios/SPEND.xcodeproj`, select the shared `SPEND` scheme and an iPhone
+simulator, then Run. The project requires Xcode with an iOS 17-or-newer SDK.
+Simulator builds require no developer account. Signing and physical-device
+acceptance are separate from simulator verification.
+
+From the repository root, run unit and UI tests on the installed simulator:
+
+```sh
+xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+Tests use synthetic purchases and isolated stores. UI tests verify relaunch
+persistence without clearing the test journal between those launches.
+
+The checked-in project builds directly. To regenerate it after changing the
+project definition, use the already-installed XcodeGen 2.46.0:
+
+```sh
+xcodegen generate --spec ios/project.yml
+```
 
 See docs/ROADMAP.md for milestones.
