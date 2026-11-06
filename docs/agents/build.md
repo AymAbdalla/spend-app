@@ -6,6 +6,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | spend-core | quick-entry-dashboard | 0393ef57d4e7cd6b233e01307697d13c1ccf4415 | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 17 unit + 5 UI tests passed on each of iPhone 17 Pro and iPhone SE 3rd generation, iOS 26.5; no skips or runtime warnings; Release simulator build passed; evidence below | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | fb04a1dcfd827d8a6dd80e2654b03bf30d77d4e0 | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: final completion includes the generated shared workspace used by the same passing 22-test runs on both simulators and Release build; compiled source unchanged | built | 2026-11-06 |
+| 1 | spend-core | quick-entry-dashboard | 249542912e05ee44e2d5e2f5318c824362b08f0b | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: all 5 optional follow-ups addressed; 21 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release build passed; new evidence below; independent recheck pending | built | 2026-11-06 |
 
 ## Scope and authorization
 
@@ -121,3 +122,81 @@ bundles and isolated stores. Keep physical-device and older-runtime gaps explici
 The merge gate was run after Build and refused for exactly the two expected
 pending requirements: independent slice 1 pass and independent security pass.
 No checker rows were added.
+
+## 2026-11-06 optional check follow-ups
+
+Current code commit: `2495429`. This section supersedes the earlier recheck
+pointer. The independent checker passed `fb04a1d` with no required fixes. The
+owner requested the five optional follow-ups in the Build chat; all five are
+implemented. Previous checker rows remain unchanged and apply to the older code.
+
+| Finding | Change | Evidence / limit |
+| --- | --- | --- |
+| 1: Dark cards blend into background | Today, period-total and recent-purchase cards use secondarySystemGroupedBackground. | Inspected final dark Pro dashboard and SE recent-purchase screenshots; surfaces are visibly distinct. |
+| 2: Save confirmation needs an announcement | Remove updatesFrequently; post AccessibilityNotification.Announcement after a successful entry-sheet dismissal. | Compiled and exercised the save/dismiss path. Code reading confirms cancel and failure do not announce success. Actual spoken VoiceOver output is not checked. |
+| 3: Relaunch assertions incomplete | Require week/month totals, Test cafe and $12.34 in the one row, and a hittable row after scrolling. Relaunch in dark mode and capture cards. | Enhanced UI test passes on both simulators. |
+| 4: Hosted unit tests open normal store | Return no StoreState for hosted XCTest runs; display an empty host view without loading the journal. Explicit DEBUG UI-store UUIDs retain the real UI path. | New unit assertion passes. Normal journal, WAL and SHM content fingerprints and modification times are unchanged across both complete test runs. |
+| 5: Explicit file protection | Request complete protection for the parent folder and existing store/WAL/SHM before and after opening. Keep the same paths and propagate setting failures. | Filesystem-boundary contract tests, real disk persistence/reopening, and error recovery pass. Device encryption and lock/unlock enforcement remain unverified. |
+
+### Self-checks and artifacts
+
+- **pass:** `acceptance-pro.xcresult` and `acceptance-se.xcresult`: 26 tests each
+  (21 unit, 5 UI), zero failures, zero skips, zero runtime warnings; exit 0.
+- **pass:** Release simulator build, exit 0. The only build warning is the
+  expected App Intents metadata-extraction notice; this slice has no App Intents.
+- **pass:** New store and existing-store protection policy requests; existing
+  purchase survives reopening and a simulated attribute-setting failure.
+- **pass:** Security self-review: no app networking, financial logging, new
+  packages, or secrets; CloudKit remains none; DEBUG hook strings absent from
+  the final Release binary. Native XCTest host detection is intentionally
+  available in Release test hosts as well.
+- **pass:** Normal journal file fingerprints and modification times unchanged.
+  The evidence collector initially retained data-container paths from before
+  reinstallation, which caused an assertion error. Resolving each current
+  simulator container before comparison corrected the collector; all three
+  files match on both simulators.
+- **unavailable:** Physical VoiceOver output, file-protection enforcement while
+  locked, and older iOS runtime acceptance. The new simulator tests verify
+  requests to the filesystem boundary, not hardware encryption.
+- **pending:** Independent functional/security recheck on `2495429`.
+
+Scratch evidence directory:
+`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-check-followups/`.
+It contains `baseline.log` / `.xcresult`, `red-protection-isolation.log` /
+`.xcresult`, `green-protection-isolation.log` / `.xcresult`,
+`green-policy-contract.log` / `.xcresult`, `red-policy-contract.log` /
+`.xcresult`, `acceptance-pro.log` / `.xcresult`, `acceptance-se.log` /
+`.xcresult`, and `release-build.log`.
+
+The initial direct-attribute tests assumed the simulator exposed file-protection
+class readback. It returned nil even after the real setter succeeded, so those
+assertions could not judge encryption policy here. The tests were corrected to
+observe the filesystem request boundary while retaining real temporary stores.
+A disposable `weaker-policy-ios/` source copy deliberately requested the weaker
+completeUntilFirstUserAuthentication policy; the policy test then failed on all
+four expected paths. This confirms regression sensitivity without weakening the
+required complete policy. The repository's policy stayed unchanged during that
+mutation run. Hosted-store suppression also failed on the original non-nil
+StoreState before its fix. No manufactured test was added for the color edit or
+for audible output that cannot be heard in these automated tests.
+
+Deliverables:
+`/Users/aympulse/aym/agents/outputs/spend/check-followups/`.
+Files: `test-summary-pro.json`, `test-summary-se.json`,
+`normal-journal-isolation.txt`, `tested-source-sha256.txt`,
+`dark-dashboard-pro.png`, `dark-dashboard-se.png`, `dark-recent-pro.png`,
+`dark-recent-se.png`, `light-dashboard-pro.png`, `light-dashboard-se.png`.
+
+Changed files in `2495429`: `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`,
+`ios/SPEND/App/AppConfiguration.swift`, `ios/SPEND/App/SpendApp.swift`,
+`ios/SPEND/Features/Dashboard/DashboardView.swift`,
+`ios/SPEND/Services/JournalStore.swift`, `ios/SPENDTests/RecoveryTests.swift`,
+and `ios/SPENDUITests/JournalUITests.swift`. This record commit changes only
+`docs/agents/build.md` and the builder's `docs/agents/status.md` row.
+
+### Recheck
+
+Say **recheck** in the existing independent Check chat. Recheck slice 1 and
+security on code commit `2495429` in `quick-entry-dashboard`, against
+`docs/PLAN.md` and the five owner-requested optional findings. Treat this Build
+record as claims to verify. Report only, except checker-owned `checks.md` rows.
