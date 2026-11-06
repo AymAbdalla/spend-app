@@ -7,6 +7,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | 0393ef57d4e7cd6b233e01307697d13c1ccf4415 | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 17 unit + 5 UI tests passed on each of iPhone 17 Pro and iPhone SE 3rd generation, iOS 26.5; no skips or runtime warnings; Release simulator build passed; evidence below | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | fb04a1dcfd827d8a6dd80e2654b03bf30d77d4e0 | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: final completion includes the generated shared workspace used by the same passing 22-test runs on both simulators and Release build; compiled source unchanged | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | 249542912e05ee44e2d5e2f5318c824362b08f0b | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: all 5 optional follow-ups addressed; 21 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release build passed; new evidence below; independent recheck pending | built | 2026-11-06 |
+| 1 | spend-core | quick-entry-dashboard | 31ad678f6a61cc7016650a1121b99bfb8e81ea8c | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 25 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release passed; dedicated journal adoption and full-row visibility verified; independent recheck pending | built | 2026-11-06 |
 
 ## Scope and authorization
 
@@ -200,3 +201,80 @@ Say **recheck** in the existing independent Check chat. Recheck slice 1 and
 security on code commit `2495429` in `quick-entry-dashboard`, against
 `docs/PLAN.md` and the five owner-requested optional findings. Treat this Build
 record as claims to verify. Report only, except checker-owned `checks.md` rows.
+
+## 2026-11-06 folder and screenshot follow-ups
+
+Current code commit: `31ad678`. This supersedes the earlier recheck pointer.
+The independent recheck passed `2495429` with no required fixes; the owner asked
+Build to address the two additional optional findings. Checker records remain
+unchanged and apply to the previous code.
+
+1. The relaunch scroll loop now tests the row's full bottom edge against the Add
+   purchase button's top edge, with an 8-point gap, rather than stopping solely
+   on isHittable. A final frame assertion enforces the same condition. Both Pro
+   and SE screenshots now show the whole recent-purchase card above the button.
+2. The normal active store is `Application Support/Journal/journal.store`.
+   AppConfiguration uses openJournal(in:), which confines new protection requests
+   to the journal and its private migration staging folder. It never sets the
+   protection class on Application Support. Legacy store/WAL/SHM files are copied
+   before the app opens a normal store connection; a completed protected staging
+   directory is promoted to Journal. Original files remain a recovery copy,
+   existing parent attributes are not downgraded, and the dedicated store takes
+   precedence on later opens. Copy failures and occupied destinations preserve
+   existing data. DECISIONS 011 and ARCHITECTURE describe these choices.
+
+### Self-check evidence
+
+- **pass:** Full suites on iPhone 17 Pro and iPhone SE 3rd generation, iOS 26.5:
+  30 tests each (25 unit and 5 UI), zero failed, zero skipped, zero runtime
+  warnings; both commands exited 0.
+- **pass:** Release simulator build, exit 0. Only the previously documented App
+  Intents metadata-extraction notice remains.
+- **pass:** New unit tests confirm the dedicated path and protection-request
+  scope; all legacy purchase fields survive adoption; reopening does not
+  reimport the backup; partial copy failure leaves original bytes intact and
+  retries successfully; an occupied destination is not overwritten.
+- **pass:** Normal legacy and dedicated journal/WAL/SHM file content fingerprints
+  and modification times remained unchanged during both full automated runs.
+  Unit and UI tests continue to use their own stores.
+- **pass:** Visual self-review of both final recent-card screenshots, including
+  Pro; the Pro before-scroll and after-scroll files are different and the full
+  row is visibly above the bar. The frame assertion also passes on both devices.
+- **pass:** Security self-review: only fixed journal filenames inside the app
+  sandbox are adopted; original files are never deleted; normal error cleanup
+  removes only the staging directory created by that invocation. No networking,
+  financial logging, packages, or secrets were added; CloudKit remains none;
+  DEBUG hook strings remain absent from Release.
+- **unavailable:** Physical lock/unlock file-protection enforcement, audible
+  VoiceOver acceptance and older-runtime acceptance remain unchanged gaps.
+- **pending:** Independent slice 1/security recheck at `31ad678`.
+
+`red-path-visibility.log` / `.xcresult` reproduced the issues before the fix:
+new-path assertions failed against the temporary root-path stub, and the Pro row
+bottom was 886.6667 points versus an allowed 758.0 points. The existing disk
+persistence baseline passed first. `green-path-visibility` then passed all 25
+unit tests plus the focused relaunch UI test before the full suites ran.
+
+Scratch logs and result bundles:
+`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-journal-folder/`:
+`baseline`, `red-path-visibility`, `green-path-visibility`, `acceptance-pro`,
+`acceptance-se` (each `.log` and `.xcresult`), plus `release-build.log`.
+
+Deliverables:
+`/Users/aympulse/aym/agents/outputs/spend/journal-folder/`:
+`test-summary-pro.json`, `test-summary-se.json`, `tested-source-sha256.txt`,
+`normal-journal-isolation.txt`, `dark-before-scroll-pro.png`,
+`dark-before-scroll-se.png`, `dark-recent-pro.png`, `dark-recent-se.png`.
+
+Changed files in `31ad678`: `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`,
+`ios/SPEND/App/AppConfiguration.swift`, `ios/SPEND/Services/JournalStore.swift`,
+`ios/SPENDTests/RecoveryTests.swift`, `ios/SPENDUITests/JournalUITests.swift`.
+This record commit changes only `docs/agents/build.md` and the builder's
+`docs/agents/status.md` row.
+
+### Recheck
+
+Say **recheck** in the existing independent Check chat. Recheck slice 1 and
+security at `31ad678` on `quick-entry-dashboard` against `docs/PLAN.md` and the
+two owner-requested optional findings from `2495429`. Treat this Build record
+as claims to verify. Report only, except checker-owned `checks.md` rows.
