@@ -8,6 +8,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | fb04a1dcfd827d8a6dd80e2654b03bf30d77d4e0 | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: final completion includes the generated shared workspace used by the same passing 22-test runs on both simulators and Release build; compiled source unchanged | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | 249542912e05ee44e2d5e2f5318c824362b08f0b | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: all 5 optional follow-ups addressed; 21 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release build passed; new evidence below; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | 31ad678f6a61cc7016650a1121b99bfb8e81ea8c | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 25 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release passed; dedicated journal adoption and full-row visibility verified; independent recheck pending | built | 2026-11-06 |
+| 1 | spend-core | quick-entry-dashboard | bfc9b886dfc6572a96eadf673f03cf0f5bb3032e | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: documentation-only follow-up; roadmap cleanup prerequisite and decision caveat read back; git diff --check passed; no ios changes from checked 31ad678; no new runtime test claims | built | 2026-11-06 |
 
 ## Scope and authorization
 
@@ -278,3 +279,32 @@ Say **recheck** in the existing independent Check chat. Recheck slice 1 and
 security at `31ad678` on `quick-entry-dashboard` against `docs/PLAN.md` and the
 two owner-requested optional findings from `2495429`. Treat this Build record
 as claims to verify. Report only, except checker-owned `checks.md` rows.
+
+## 2026-11-06 recovery-copy roadmap follow-up
+
+Current documentation commit: `bfc9b88`. This supersedes earlier recheck
+pointers. The independent check passed code `31ad678` with no required fixes.
+The owner offered either protecting legacy copies or recording cleanup in the
+edit/delete roadmap. This follow-up uses the explicitly offered roadmap option.
+
+`docs/ROADMAP.md` now requires removing or reconciling the legacy recovery
+SQLite database, WAL/SHM sidecars, and other app-controlled migration recovery
+copies before enabling edit/delete. Its acceptance checks cover legacy adoption,
+mutation and relaunch, preventing deleted purchases or obsolete edited values
+from being loaded or reimported from those copies. `docs/DECISIONS.md` records
+this prerequisite and explicitly states that legacy copies retain their
+original protection class. Immediate legacy-file hardening is not claimed.
+
+Self-check: read back both additions and ran `git diff --check` (pass).
+`git diff 31ad678 -- ios` is empty: app source, project and tests are unchanged.
+No tests/builds were rerun for this prose-only change, and no new runtime pass is
+claimed. The independent runtime/security evidence on `31ad678` remains in the
+checker-owned log; the gate needs refreshed rows for the new documentation head.
+
+This record commit changes only `docs/agents/build.md` and the builder's
+`docs/agents/status.md` row. Checker records were not edited.
+
+Next: say **recheck** in the existing independent Check chat for `bfc9b88` on
+`quick-entry-dashboard`, focusing on the requested roadmap/decision addition
+against the optional finding from `31ad678`. Report only, except checker-owned
+`checks.md` rows.

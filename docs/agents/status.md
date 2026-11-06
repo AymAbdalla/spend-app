@@ -4,4 +4,4 @@ One line per workstream. Each builder edits only its own line; the checker does 
 
 | Workstream | Tool | Branch | Owns | Phase | Next |
 | --- | --- | --- | --- | --- | --- |
-| spend-core | local build session | quick-entry-dashboard | ios/, CLAUDE.md, README.md, docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/PLAN.md, docs/ROADMAP.md, docs/agents/build.md, docs/agents/status.md | Build folder/visibility follow-ups complete at 31ad678; self-check only | Say recheck in the existing independent Check chat: slice 1 and security at 31ad678 against docs/PLAN.md and the two latest optional findings; treat build.md as claims; report only except checker-owned checks.md rows |
+| spend-core | local build session | quick-entry-dashboard | ios/, CLAUDE.md, README.md, docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/PLAN.md, docs/ROADMAP.md, docs/agents/build.md, docs/agents/status.md | Build recovery-copy documentation follow-up complete at bfc9b88; self-check only | Say recheck in the independent Check chat for bfc9b88; roadmap/decision follow-up only, ios unchanged from checked 31ad678; report only except checker-owned checks.md rows |
