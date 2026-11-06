@@ -22,7 +22,6 @@ struct DashboardView: View {
                     if saved {
                         Label("Purchase saved.", systemImage: "checkmark.circle")
                             .accessibilityIdentifier("saveConfirmation")
-                            .accessibilityAddTraits(.updatesFrequently)
                     }
                     summaryContent
                     recentPurchases
@@ -50,7 +49,9 @@ struct DashboardView: View {
                 .padding(.vertical, 12)
                 .background(.bar)
             }
-            .sheet(isPresented: $showingEntry) {
+            .sheet(isPresented: $showingEntry, onDismiss: {
+                if saved { AccessibilityNotification.Announcement("Purchase saved").post() }
+            }) {
                 QuickEntryView(commit: commit) {
                     now = Date()
                     saved = true
@@ -76,14 +77,14 @@ struct DashboardView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(20)
-            .background(.background, in: RoundedRectangle(cornerRadius: 20))
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
             VStack(spacing: 16) {
                 totalRow("This week", amount: summary.week, identifier: "weekTotal")
                 Divider()
                 totalRow("This month", amount: summary.month, identifier: "monthTotal")
             }
             .padding(20)
-            .background(.background, in: RoundedRectangle(cornerRadius: 20))
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
             VStack(alignment: .leading, spacing: 16) {
                 Text("This month by category").font(.headline)
                 if summary.categories.isEmpty {
@@ -137,7 +138,7 @@ struct DashboardView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
-                    .background(.background, in: RoundedRectangle(cornerRadius: 16))
+                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("purchaseRow")
                 }

@@ -3,12 +3,29 @@ import SwiftData
 
 @MainActor
 enum JournalStore {
-    static func open(at url: URL) throws -> ModelContainer {
+    static func open(at url: URL,
+                     setFileAttributes: ([FileAttributeKey: Any], String) throws -> Void = {
+                         try FileManager.default.setAttributes($0, ofItemAtPath: $1)
+                     }) throws -> ModelContainer {
+        try protectStore(at: url, setFileAttributes: setFileAttributes)
         let schema = Schema([Purchase.self])
         let configuration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         container.mainContext.autosaveEnabled = false
+        try protectStore(at: url, setFileAttributes: setFileAttributes)
         return container
+    }
+
+    private static func protectStore(at url: URL,
+                                     setFileAttributes: ([FileAttributeKey: Any], String) throws -> Void) throws {
+        let manager = FileManager.default
+        let directory = url.deletingLastPathComponent()
+        let attributes: [FileAttributeKey: Any] = [.protectionKey: FileProtectionType.complete]
+        try manager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: attributes)
+        try setFileAttributes(attributes, directory.path)
+        for path in [url.path, url.path + "-wal", url.path + "-shm"] where manager.fileExists(atPath: path) {
+            try setFileAttributes(attributes, path)
+        }
     }
 }
 

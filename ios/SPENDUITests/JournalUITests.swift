@@ -49,10 +49,23 @@ final class JournalUITests: XCTestCase {
         XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "purchaseRow").count, 1)
         attach(app, "Dashboard - saved purchase")
         app.terminate()
+        app.launchArguments += ["-ui-appearance", "dark"]
         app.launch()
         XCTAssertTrue(app.staticTexts["todayTotal"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["todayTotal"].label, "$12.34")
+        XCTAssertEqual(app.staticTexts["weekTotal"].label, "$12.34")
+        XCTAssertEqual(app.staticTexts["monthTotal"].label, "$12.34")
         XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "purchaseRow").count, 1)
+        let row = app.descendants(matching: .any).matching(identifier: "purchaseRow").firstMatch
+        XCTAssertTrue(row.label.contains("Test cafe"))
+        XCTAssertTrue(row.label.contains("$12.34"))
+        attach(app, "Dashboard - dark after relaunch")
+        for _ in 0..<3 {
+            if row.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(row.isHittable)
+        attach(app, "Dashboard - dark recent purchase")
         app.terminate()
         app.launchArguments.append("-fail-initial-load")
         app.launch()

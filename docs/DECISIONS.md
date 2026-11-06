@@ -81,3 +81,31 @@ Reason: A week can cross a month/year and a day can span a daylight-saving
 change. Fixed 24-hour or seven-day subtraction is insufficient.
 
 Reference: Apple's [Calendar.dateInterval documentation](https://developer.apple.com/documentation/foundation/calendar/dateinterval(of:for:)).
+
+## 011 — Protect the Local Journal While Locked
+
+Decision: Apply `FileProtectionType.complete` to the journal folder and the
+existing SQLite store, WAL, and SHM files before and after container creation.
+Keep existing file locations and purchases intact, and surface attribute-setting
+errors through the existing retry flow. The owner requested the independent
+check's optional hardening follow-up on 2026-11-06.
+
+Reason: The current manual journal operates in the foreground and does not need
+locked-device background access. Apple's complete-protection policy makes files
+unavailable while locked; later background features must revisit their access
+requirements. Simulator tests verify policy requests and preservation of real
+temporary stores, with physical-device enforcement still unverified.
+
+Reference: Apple's [FileProtectionType documentation](https://developer.apple.com/documentation/foundation/fileprotectiontype).
+
+## 012 — Announce a Successful Save After Dismissal
+
+Decision: Post `AccessibilityNotification.Announcement("Purchase saved")` when
+Quick Entry finishes dismissing after a successful save. Remove the unrelated
+frequently-updating trait from the confirmation label.
+
+Reason: Post the explicit announcement after the sheet's focus transition.
+Cancel and failed saves must not announce success. This implements the owner's
+optional accessibility follow-up; audible VoiceOver acceptance remains open.
+
+Reference: Apple's [announcement documentation](https://developer.apple.com/documentation/accessibility/accessibilitynotification/announcement).

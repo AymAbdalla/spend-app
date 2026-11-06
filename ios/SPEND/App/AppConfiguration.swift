@@ -10,7 +10,10 @@ enum AppConfiguration {
         return nil
     }
 
-    static func makeStoreState() -> StoreState {
+    static func makeStoreState() -> StoreState? {
+        let isHostedUnitTest = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+            || NSClassFromString("XCTestCase") != nil
+        if isHostedUnitTest && testStoreID == nil { return nil }
         var failFirst = false
         #if DEBUG
         failFirst = testStoreID != nil && ProcessInfo.processInfo.arguments.contains("-fail-initial-load")
@@ -23,7 +26,6 @@ enum AppConfiguration {
             let support = try FileManager.default.url(for: .applicationSupportDirectory,
                                                       in: .userDomainMask, appropriateFor: nil, create: true)
             let directory = testStoreID.map { support.appendingPathComponent("UITests/" + $0.uuidString) } ?? support
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             return try JournalStore.open(at: directory.appendingPathComponent("journal.store"))
         }
     }

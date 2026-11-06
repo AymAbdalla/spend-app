@@ -42,6 +42,12 @@ Current feature organization in `ios/SPEND/`:
 `SpendApp` owns recoverable store loading. `JournalStore` creates the local
 SwiftData container with CloudKit explicitly disabled and autosave disabled.
 The normal store is `Application Support/journal.store` inside the app sandbox.
+Before and after opening a store, `JournalStore` requests
+`FileProtectionType.complete` for its parent directory and existing SQLite store,
+WAL, and SHM files. Existing journals stay at the same path; protection errors
+propagate to the normal retry screen without replacing the store. This policy
+fits the current foreground-only journal. Future background work must account
+for protected data being unavailable while the device is locked.
 There is no backend, analytics, or purchase-content logging. Device backup policy
 is controlled by iOS; local storage does not mean exclusion from device backups.
 
@@ -80,12 +86,25 @@ to use `Application Support/UITests/<UUID>/journal.store`, preserve that store
 across a relaunch, and never reset the normal journal. Failure injection and
 appearance overrides are restricted to DEBUG builds with a valid test-store UUID;
 Release builds ignore them. Database load/save closures are the only replaced
-boundaries in failure tests; the model and calculations remain real.
+boundaries in the original failure tests; the model and calculations remain real.
+Hosted XCTest unit runs receive no app `StoreState`, so the app displays an empty
+host view and never starts normal journal loading. A valid DEBUG UI-test UUID
+keeps the real app path available for UI tests.
+
+Protection tests observe requests at the filesystem attribute-setting boundary
+while using real temporary SQLite stores. They cover new stores, reopening
+existing stores, and failures without purchase loss. The simulator does not
+expose the file-protection class on readback; these checks prove the requested
+policy, not hardware encryption or lock/unlock enforcement on an iPhone.
 
 Native text styles, system surfaces, a system accent, scrolling forms, labelled
 controls, and vertical summary rows at accessibility text sizes form the initial
 design system. Quick Entry places its Done control in a safe-area inset above
-the keyboard, keeping it reachable without a custom keyboard. See `PLAN.md` for
+the keyboard, keeping it reachable without a custom keyboard. Dashboard cards use
+`secondarySystemGroupedBackground` to retain a distinct surface in both
+appearances. A successful save posts an accessibility announcement after sheet
+dismissal; cancellation and failed saves do not announce success. Spoken output
+still needs physical VoiceOver acceptance. See `PLAN.md` for
 the reviewed UI references and approved scope.
 
 ## Important Decisions
