@@ -22,6 +22,13 @@ gate recorded in `docs/agents/checks.md`; no physical-device acceptance is impli
 - [x] Spending calculations
 - [x] Automated tests
 
+Edit/delete acceptance: before enabling either action, remove or reconcile the
+legacy recovery database (`Application Support/journal.store`) and its
+`journal.store-wal` / `journal.store-shm` sidecars, plus any app-controlled
+migration recovery copies. Tests must seed legacy data, adopt it, edit/delete,
+and relaunch; obsolete values and deleted purchases must not be loaded or
+reimported from those copies.
+
 ## Phase 2 — iPhone Integration
 
 - [ ] App Intent / App Shortcut

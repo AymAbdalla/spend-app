@@ -95,6 +95,11 @@ Existing parent-directory attributes from older development builds are not
 automatically weakened. The owner requested the independent check's optional
 hardening and folder-isolation follow-ups on 2026-11-06.
 
+Legacy recovery files retain their original protection class. The edit/delete
+slice must remove or reconcile those files and their sidecars before enabling
+mutations, with regression checks against stale values or deleted purchases
+being loaded or reimported. See `ROADMAP.md` for the acceptance requirement.
+
 Reason: The current manual journal operates in the foreground and does not need
 locked-device background access. Apple's complete-protection policy makes files
 unavailable while locked; later background features must revisit their access
