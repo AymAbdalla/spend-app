@@ -16,6 +16,106 @@ final class RecoveryTests: XCTestCase {
         XCTAssertNil(AppConfiguration.makeStoreState())
     }
 
+    func testAppJournalUsesDedicatedSubfolder() throws {
+        let support = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: support) }
+        var protectedPaths: [String] = []
+        let container = try JournalStore.openJournal(in: support, setFileAttributes: { attributes, path in
+            protectedPaths.append(path)
+            try FileManager.default.setAttributes(attributes, ofItemAtPath: path)
+        })
+        var draft = PurchaseDraft()
+        draft.amount = "12.34"
+        draft.merchant = "Dedicated journal"
+        try PurchaseWriter.save(draft, in: container.mainContext)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: support.appendingPathComponent("Journal/journal.store").path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: support.appendingPathComponent("journal.store").path))
+        let journalDirectory = support.appendingPathComponent("Journal").path
+        XCTAssertTrue(protectedPaths.contains(journalDirectory))
+        XCTAssertTrue(protectedPaths.allSatisfy { $0 == journalDirectory || $0.hasPrefix(journalDirectory + "/") })
+        let reopened = try JournalStore.openJournal(in: support)
+        XCTAssertEqual(try reopened.mainContext.fetch(FetchDescriptor<Purchase>()).first?.id, draft.id)
+    }
+
+    func testLegacyPurchaseIsAdoptedIntoDedicatedJournalAndNotReimported() throws {
+        let support = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: support) }
+        var draft = PurchaseDraft()
+        draft.amount = "12.34"
+        draft.merchant = "Existing purchase"
+        draft.category = .groceries
+        draft.spendingType = .impulse
+        draft.notes = "Keep this note"
+        try autoreleasepool {
+            let legacy = try JournalStore.open(at: support.appendingPathComponent("journal.store"))
+            try PurchaseWriter.save(draft, in: legacy.mainContext)
+        }
+        let moved = try JournalStore.openJournal(in: support)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: support.appendingPathComponent("Journal/journal.store").path))
+        let purchases = try moved.mainContext.fetch(FetchDescriptor<Purchase>())
+        XCTAssertEqual(purchases.count, 1)
+        XCTAssertEqual(purchases.first?.id, draft.id)
+        XCTAssertEqual(purchases.first?.date, draft.date)
+        XCTAssertEqual(purchases.first?.amountInCents, 1234)
+        XCTAssertEqual(purchases.first?.merchant, "Existing purchase")
+        XCTAssertEqual(purchases.first?.category, .groceries)
+        XCTAssertEqual(purchases.first?.spendingType, .impulse)
+        XCTAssertEqual(purchases.first?.notes, "Keep this note")
+        var second = PurchaseDraft()
+        second.amount = "1.00"
+        second.merchant = "New purchase"
+        try PurchaseWriter.save(second, in: moved.mainContext)
+        let reopened = try JournalStore.openJournal(in: support)
+        XCTAssertEqual(try reopened.mainContext.fetchCount(FetchDescriptor<Purchase>()), 2)
+    }
+
+    func testFailedLegacyCopyLeavesOriginalIntactAndRetryPreservesPurchase() throws {
+        let support = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: support) }
+        var draft = PurchaseDraft()
+        draft.amount = "12.34"
+        draft.merchant = "Existing purchase"
+        try autoreleasepool {
+            let legacy = try JournalStore.open(at: support.appendingPathComponent("journal.store"))
+            try PurchaseWriter.save(draft, in: legacy.mainContext)
+        }
+        let files = try FileManager.default.contentsOfDirectory(at: support, includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasPrefix("journal.store") }
+        let original = try Dictionary(uniqueKeysWithValues: files.map { ($0, try Data(contentsOf: $0)) })
+        XCTAssertThrowsError(try JournalStore.openJournal(in: support, copyItem: { source, destination in
+            try FileManager.default.copyItem(at: source, to: destination)
+            throw CocoaError(.fileWriteOutOfSpace)
+        }))
+        for (file, data) in original { XCTAssertEqual(try Data(contentsOf: file), data) }
+        XCTAssertFalse(FileManager.default.fileExists(atPath: support.appendingPathComponent("Journal").path))
+        let remaining = try FileManager.default.contentsOfDirectory(atPath: support.path)
+        XCTAssertFalse(remaining.contains { $0.hasPrefix("Journal-Migration-") })
+        let retried = try JournalStore.openJournal(in: support)
+        let purchases = try retried.mainContext.fetch(FetchDescriptor<Purchase>())
+        XCTAssertEqual(purchases.count, 1)
+        XCTAssertEqual(purchases.first?.id, draft.id)
+        XCTAssertEqual(purchases.first?.amountInCents, 1234)
+    }
+
+    func testLegacyAdoptionDoesNotOverwriteAnOccupiedJournalFolder() throws {
+        let support = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: support) }
+        try autoreleasepool {
+            let legacy = try JournalStore.open(at: support.appendingPathComponent("journal.store"))
+            var draft = PurchaseDraft()
+            draft.amount = "12.34"
+            draft.merchant = "Existing purchase"
+            try PurchaseWriter.save(draft, in: legacy.mainContext)
+        }
+        let directory = support.appendingPathComponent("Journal")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let sentinel = directory.appendingPathComponent("keep.txt")
+        try Data("Keep this file".utf8).write(to: sentinel)
+        XCTAssertThrowsError(try JournalStore.openJournal(in: support))
+        XCTAssertEqual(try String(contentsOf: sentinel, encoding: .utf8), "Keep this file")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: support.appendingPathComponent("journal.store").path))
+    }
+
     func testCompleteProtectionIsRequestedForFolderAndCreatedStoreFiles() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

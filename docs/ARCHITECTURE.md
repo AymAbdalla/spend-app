@@ -41,15 +41,27 @@ Current feature organization in `ios/SPEND/`:
 
 `SpendApp` owns recoverable store loading. `JournalStore` creates the local
 SwiftData container with CloudKit explicitly disabled and autosave disabled.
-The normal store is `Application Support/journal.store` inside the app sandbox.
-Before and after opening a store, `JournalStore` requests
-`FileProtectionType.complete` for its parent directory and existing SQLite store,
-WAL, and SHM files. Existing journals stay at the same path; protection errors
-propagate to the normal retry screen without replacing the store. This policy
+The normal store is `Application Support/Journal/journal.store` inside the app
+sandbox. Before and after opening a store, `JournalStore` requests
+`FileProtectionType.complete` for the dedicated Journal directory and existing
+SQLite store, WAL, and SHM files. It does not apply protection to the whole
+Application Support directory. Protection errors propagate to the normal retry
+screen without replacing the store. This policy
 fits the current foreground-only journal. Future background work must account
 for protected data being unavailable while the device is locked.
 There is no backend, analytics, or purchase-content logging. Device backup policy
 is controlled by iOS; local storage does not mean exclusion from device backups.
+
+`openJournal(in:)` adopts a legacy root-level `journal.store` before the app opens
+any normal journal connection. It copies the main file and available WAL/SHM
+sidecars into a protected temporary directory, then promotes that completed
+directory to `Journal` with a same-parent move. The legacy files remain as a
+recovery copy. Once `Journal/journal.store` exists, it is authoritative; legacy
+files are not reimported. Failed copies clean up only their own staging directory,
+and an occupied destination is not overwritten. This relies on the current
+single app process with no background journal writer. Existing protection
+attributes applied to Application Support by older development builds are left
+unchanged rather than downgraded.
 
 `QuickEntrySession` holds an unsaved `PurchaseDraft`. `PurchaseWriter` validates
 it before insertion, then explicitly saves the main context. A failed save rolls
@@ -82,7 +94,7 @@ XcodeGen 2.46.0. XcodeGen is not required to open or build the checked-in projec
 There are no third-party app dependencies. The deployment target is iOS 17.
 
 Unit persistence tests create temporary disk stores. UI tests pass a fresh UUID
-to use `Application Support/UITests/<UUID>/journal.store`, preserve that store
+to use `Application Support/UITests/<UUID>/Journal/journal.store`, preserve that store
 across a relaunch, and never reset the normal journal. Failure injection and
 appearance overrides are restricted to DEBUG builds with a valid test-store UUID;
 Release builds ignore them. Database load/save closures are the only replaced

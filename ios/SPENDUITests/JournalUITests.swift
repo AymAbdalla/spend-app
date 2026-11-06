@@ -61,10 +61,12 @@ final class JournalUITests: XCTestCase {
         XCTAssertTrue(row.label.contains("$12.34"))
         attach(app, "Dashboard - dark after relaunch")
         for _ in 0..<3 {
-            if row.isHittable { break }
+            if row.frame.maxY <= app.buttons["addPurchase"].frame.minY - 8 { break }
             app.swipeUp()
         }
         XCTAssertTrue(row.isHittable)
+        XCTAssertLessThanOrEqual(row.frame.maxY, app.buttons["addPurchase"].frame.minY - 8,
+                                 "The entire row must be above the Add purchase bar")
         attach(app, "Dashboard - dark recent purchase")
         app.terminate()
         app.launchArguments.append("-fail-initial-load")

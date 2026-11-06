@@ -3,6 +3,35 @@ import SwiftData
 
 @MainActor
 enum JournalStore {
+    static func openJournal(in supportDirectory: URL,
+                            setFileAttributes: ([FileAttributeKey: Any], String) throws -> Void = {
+                                try FileManager.default.setAttributes($0, ofItemAtPath: $1)
+                            },
+                            copyItem: (URL, URL) throws -> Void = {
+                                try FileManager.default.copyItem(at: $0, to: $1)
+                            }) throws -> ModelContainer {
+        let manager = FileManager.default
+        try manager.createDirectory(at: supportDirectory, withIntermediateDirectories: true)
+        let directory = supportDirectory.appendingPathComponent("Journal", isDirectory: true)
+        let url = directory.appendingPathComponent("journal.store")
+        let legacy = supportDirectory.appendingPathComponent("journal.store")
+        if !manager.fileExists(atPath: url.path), manager.fileExists(atPath: legacy.path) {
+            let staging = supportDirectory.appendingPathComponent("Journal-Migration-" + UUID().uuidString, isDirectory: true)
+            defer { try? manager.removeItem(at: staging) }
+            let stagedStore = staging.appendingPathComponent("journal.store")
+            try protectStore(at: stagedStore, setFileAttributes: setFileAttributes)
+            for name in ["journal.store", "journal.store-wal", "journal.store-shm"] {
+                let source = supportDirectory.appendingPathComponent(name)
+                if manager.fileExists(atPath: source.path) {
+                    try copyItem(source, staging.appendingPathComponent(name))
+                }
+            }
+            try protectStore(at: stagedStore, setFileAttributes: setFileAttributes)
+            try manager.moveItem(at: staging, to: directory)
+        }
+        return try open(at: url, setFileAttributes: setFileAttributes)
+    }
+
     static func open(at url: URL,
                      setFileAttributes: ([FileAttributeKey: Any], String) throws -> Void = {
                          try FileManager.default.setAttributes($0, ofItemAtPath: $1)

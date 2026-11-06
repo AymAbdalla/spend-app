@@ -84,11 +84,16 @@ Reference: Apple's [Calendar.dateInterval documentation](https://developer.apple
 
 ## 011 — Protect the Local Journal While Locked
 
-Decision: Apply `FileProtectionType.complete` to the journal folder and the
-existing SQLite store, WAL, and SHM files before and after container creation.
-Keep existing file locations and purchases intact, and surface attribute-setting
-errors through the existing retry flow. The owner requested the independent
-check's optional hardening follow-up on 2026-11-06.
+Decision: Store the journal at `Application Support/Journal/journal.store`.
+Apply `FileProtectionType.complete` to that dedicated directory and its SQLite
+store, WAL, and SHM files before and after container creation, without applying
+the policy to all of Application Support. Adopt an existing root-level journal
+via a protected staged copy before opening it, keep the original as a recovery
+copy, and prefer the dedicated store on later launches. Copy/protection errors
+use the existing retry flow; occupied destinations are never overwritten.
+Existing parent-directory attributes from older development builds are not
+automatically weakened. The owner requested the independent check's optional
+hardening and folder-isolation follow-ups on 2026-11-06.
 
 Reason: The current manual journal operates in the foreground and does not need
 locked-device background access. Apple's complete-protection policy makes files

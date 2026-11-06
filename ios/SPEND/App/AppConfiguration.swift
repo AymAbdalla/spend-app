@@ -26,7 +26,7 @@ enum AppConfiguration {
             let support = try FileManager.default.url(for: .applicationSupportDirectory,
                                                       in: .userDomainMask, appropriateFor: nil, create: true)
             let directory = testStoreID.map { support.appendingPathComponent("UITests/" + $0.uuidString) } ?? support
-            return try JournalStore.open(at: directory.appendingPathComponent("journal.store"))
+            return try JournalStore.openJournal(in: directory)
         }
     }
 
