@@ -65,6 +65,7 @@
 		C479D08E99507B1C4920A1B6 /* SpendShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendShortcuts.swift; sourceTree = "<group>"; };
 		CA211F6645525F493A8E5D6F /* LogPurchaseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPurchaseIntent.swift; sourceTree = "<group>"; };
 		CE9BF73F0602D3CEE7945048 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		D06D59BD85651C92D9A9DCE8 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		D0C0D8560A011C9369DA81CC /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
 		F5029E85D83B1C93BC176FA8 /* LogPurchaseIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPurchaseIntentTests.swift; sourceTree = "<group>"; };
 		F63D1C9CBA944A8C6E3BB346 /* Purchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Purchase.swift; sourceTree = "<group>"; };
@@ -83,6 +84,7 @@
 		37784F524BD5D3AF1DE4E1CD = {
 			isa = PBXGroup;
 			children = (
+				C79343AE9D293C2D4CE98A03 /* Config */,
 				D5B313AA73EAE1D28FB30ECB /* SPEND */,
 				9CADAFB8FF9EBFE73B5134E1 /* SPENDTests */,
 				EB5750094C624AE7779CB6C3 /* SPENDUITests */,
@@ -137,6 +139,14 @@
 				D2276406FC3642C139ABE879 /* QuickEntry */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		C79343AE9D293C2D4CE98A03 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D06D59BD85651C92D9A9DCE8 /* Signing.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		D2276406FC3642C139ABE879 /* QuickEntry */ = {
@@ -253,15 +263,12 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					39AE8749DA6E5F1F10E45300 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					7A9E2275E121516D64903BE2 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					929276D79DFF3772045EF217 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 						TestTargetID = 7A9E2275E121516D64903BE2;
 					};
@@ -435,6 +442,7 @@
 		};
 		A4872BF55B65167DB2629582 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D06D59BD85651C92D9A9DCE8 /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -470,7 +478,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -520,6 +527,7 @@
 		};
 		F0498277047363780BB973BD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D06D59BD85651C92D9A9DCE8 /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -555,7 +563,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

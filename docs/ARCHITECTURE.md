@@ -106,6 +106,10 @@ Open `ios/SPEND.xcodeproj`; its shared scheme contains app, unit-test, and UI-te
 targets. `ios/project.yml` is the source for generation with the already-installed
 XcodeGen 2.46.0. XcodeGen is not required to open or build the checked-in project.
 There are no third-party app dependencies. The deployment target is iOS 17.
+Signing reads `DEVELOPMENT_TEAM` from the git-ignored
+`ios/Config/Signing.local.xcconfig`, included by the committed
+`ios/Config/Signing.xcconfig`; without the local file, simulator builds sign to
+run locally and the team ID never enters git.
 
 Unit persistence tests create temporary disk stores. UI tests pass a fresh UUID
 to use `Application Support/UITests/<UUID>/Journal/journal.store`, preserve that store

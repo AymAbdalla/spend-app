@@ -54,9 +54,10 @@ The "Log a purchase" App Shortcut (slice AB1, on `action-button-shortcut`) opens
 SPEND. straight into Quick Entry. It only opens the app: nothing is saved until
 you tap Save. iOS lists it in the Shortcuts app, Spotlight, Siri ("Log a purchase
 in SPEND.") and Settings → Action Button → Shortcut. Simulator tests cover what
-happens once it runs; running it from the Action Button on an iPhone is slice AB2
-in `docs/plans/action-button.md` and is not verified yet. History/edit/delete,
-CSV export, and weekly reflection remain later work.
+happens once it runs. Slice AB2 ran it from the Action Button on an iPhone 18 Pro
+(iOS 27.2): Quick Entry opened, a test purchase saved and survived a force-quit
+and lock. Those phone results are owner-observed; the independent Check is still
+to come. History/edit/delete, CSV export, and weekly reflection remain later work.
 
 ## Open and Run
 
@@ -73,6 +74,33 @@ xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platfor
 
 Tests use synthetic purchases and isolated stores. UI tests verify relaunch
 persistence without clearing the test journal between those launches.
+
+## Run on an iPhone
+
+Use only fake purchases while testing: edit and delete don't exist yet, and
+deleting the app erases its whole journal.
+
+1. Find your team ID. It is the `OU=` value printed by this command (or see
+   Membership details at developer.apple.com):
+
+   ```sh
+   security find-certificate -c "Apple Development" -p | openssl x509 -noout -subject
+   ```
+
+2. Create `ios/Config/Signing.local.xcconfig` with one line,
+   `DEVELOPMENT_TEAM = <your team ID>`. Git ignores this file. Don't pick the
+   team in Xcode's Signing tab, because that writes it into the shared project.
+3. Unlock the iPhone, connect it by cable and tap Trust. Turn on Developer Mode
+   if iOS asks (Settings → Privacy & Security → Developer Mode).
+4. Open `ios/SPEND.xcodeproj`, choose the iPhone as the run destination, and
+   press Run. Approve any prompt to register the app.
+5. With SPEND. opened once, go to Settings → Action Button → Shortcut and choose
+   SPEND. "Log a purchase".
+
+With a free Apple account, the installed app stops opening after 7 days;
+press Run again to reinstall it.
+
+## Regenerate the Project
 
 The checked-in project builds directly. To regenerate it after changing the
 project definition, use the already-installed XcodeGen 2.46.0:

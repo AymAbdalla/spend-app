@@ -1,0 +1,11 @@
+// Signing settings shared by every target.
+//
+// To install SPEND. on your own iPhone, create Signing.local.xcconfig in this
+// folder with one line:
+//
+//     DEVELOPMENT_TEAM = <your team ID>
+//
+// Git ignores that file, so the team ID stays out of the repository. Without
+// it, simulator builds work as before.
+
+#include? "Signing.local.xcconfig"

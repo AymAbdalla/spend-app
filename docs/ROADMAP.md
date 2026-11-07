@@ -1,7 +1,9 @@
 # Roadmap
 
 Checked items below are built and self-checked. Independent Check is a separate
-gate recorded in `docs/agents/checks.md`; no physical-device acceptance is implied.
+gate recorded in `docs/agents/checks.md`. Only "Action Button setup" and "Test on
+physical iPhone" were checked on a device (owner-observed, iPhone 18 Pro, iOS
+27.2); the other items imply no physical-device acceptance.
 
 ## Phase 0 — Foundation
 
@@ -32,8 +34,8 @@ reimported from those copies.
 ## Phase 2 — iPhone Integration
 
 - [x] App Intent / App Shortcut
-- [ ] Action Button setup
-- [ ] Test on physical iPhone
+- [x] Action Button setup
+- [x] Test on physical iPhone
 - [ ] CSV export
 - [ ] Accessibility review
 

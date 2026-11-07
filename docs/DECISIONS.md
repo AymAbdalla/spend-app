@@ -95,6 +95,17 @@ Existing parent-directory attributes from older development builds are not
 automatically weakened. The owner requested the independent check's optional
 hardening and folder-isolation follow-ups on 2026-11-06.
 
+Phone observation (slice AB2, 2026-11-07, iPhone 18 Pro, iOS 27.2,
+owner-observed): after a saved purchase, a force-quit, about 20 seconds locked
+and an unlock, the journal reopened with the purchase intact. Pressing the
+Action Button on the locked phone asked for the passcode first. When the prompt
+went unanswered, iOS refused to launch the app ("the device was not, or could
+not be, unlocked"), so SPEND. did not run while locked. When the passcode was
+entered at once, the app launched after unlock and the journal opened without
+the retry screen. These show the journal reopens normally around a lock; they
+don't show the files being unreadable while locked, which the app can't observe
+from the foreground.
+
 Legacy recovery files retain their original protection class. The edit/delete
 slice must remove or reconcile those files and their sidecars before enabling
 mutations, with regression checks against stale values or deleted purchases
@@ -144,7 +155,11 @@ the old confirmation stops a later Cancel from announcing success (012).
 Limits: simulator tests run the real intent through DEBUG-only launch
 arguments (a simulated trigger). They don't prove that iOS runs it when the
 Action Button is pressed, what happens on a locked phone, or how iOS 17 to 25
-behave. The phone checklist in slice AB2 covers the first two.
+behave. The phone checklist in slice AB2 covers the first two. On 2026-11-07
+(iPhone 18 Pro, iOS 27.2, owner-observed) the Action Button and the Shortcuts
+app both opened Quick Entry with the amount field ready, and a second press
+kept the typed draft. On a locked phone iOS asks for the passcode before the
+app runs. iOS 17 to 25 remain unchecked.
 
 Reference: the iOS 27.2 SDK's App Intents interface marks `openAppWhenRun`
 deprecated from iOS 26 with "Please provide 'supportedModes' instead".
