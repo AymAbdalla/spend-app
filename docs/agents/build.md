@@ -9,7 +9,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | 249542912e05ee44e2d5e2f5318c824362b08f0b | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: all 5 optional follow-ups addressed; 21 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release build passed; new evidence below; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | 31ad678f6a61cc7016650a1121b99bfb8e81ea8c | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 25 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release passed; dedicated journal adoption and full-row visibility verified; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | bfc9b886dfc6572a96eadf673f03cf0f5bb3032e | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: documentation-only follow-up; roadmap cleanup prerequisite and decision caveat read back; git diff --check passed; no ios changes from checked 31ad678; no new runtime test claims | built | 2026-11-06 |
-| AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate; evidence below | built | 2026-11-07 |
+| AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate, and an owner-approved Release retry failed the same way, with the log showing iOS rejected the app for having no Team ID; evidence below | built | 2026-11-07 |
 
 ## Scope and authorization
 
@@ -339,17 +339,34 @@ itself. No iPhone was used and no Action Button was pressed.
 | DEBUG hooks absent from Release | pass | `strings` on the Release `SPEND` binary: 0 matches for each of the 6 hook arguments (2 new, 4 existing). The Debug binary has 1 of each, so the search can find them. |
 | Project regeneration | pass | XcodeGen 2.46.0 run twice: identical project and scheme hashes; the project diff only adds the 5 new files. |
 | Security self-review | pass | No networking, logging, packages, entitlements or secrets added. The intent takes no input and returns nothing; it can't read, speak or save purchases. Hooks need DEBUG plus a valid test-store UUID. |
-| Optional: tap "Log a purchase" in the Simulator's Shortcuts app | fail (optional, not a gate) | iPhone 17 Pro Max simulator, iOS 26.5, Debug build with ad-hoc "Sign to Run Locally" signing (no team), installed and opened once. The Shortcuts app lists SPEND.'s "Log a purchase" tile; tapping it shows "Unable to run App Shortcut". Simulator log: `LNActionForAutoShortcutPhraseFetchError Code=1 "Couldn't find AppShortcutsProvider."` The plan said to record a refusal as unavailable; the check did run, so it is recorded as fail. |
+| Optional: tap "Log a purchase" in the Simulator's Shortcuts app | fail (optional, not a gate) | iPhone 17 Pro Max simulator, iOS 26.5, Debug build with ad-hoc "Sign to Run Locally" signing (no team), installed and opened once. The Shortcuts app lists SPEND.'s "Log a purchase" tile; tapping it shows "Unable to run App Shortcut". Simulator log: `LNActionForAutoShortcutPhraseFetchError Code=1 "Couldn't find AppShortcutsProvider."` The plan said to record a refusal as unavailable; the check did run, so it is recorded as fail. A second, owner-approved attempt with a Release build signed the same way failed identically; see "Shortcuts-app failure" below. |
 | Action Button press, locked phone, iOS 17 to 25, spoken VoiceOver | unavailable | Need the owner's iPhone (AB2) or an older runtime. |
 | Independent Check | pending | Per the plan, one fresh chat checks 1, AB1, AB2 and security together after AB2. |
 
-Hypothesis for the Shortcuts-app failure, not tested: Debug builds put the
-app's code in `SPEND.debug.dylib`. The `SpendShortcuts` symbols are in that
-file (7) and not in the `SPEND` executable (0), while the Release app has one
-binary. If iOS looks for the provider in the main executable, Debug builds would
-fail this way. This matters for AB2, because Xcode's Run installs a Debug build
-on the phone. Testing it needs a second simulator attempt (a Release build, or
-`ENABLE_DEBUG_DYLIB = NO`), which is beyond the plan's single attempt.
+### Shortcuts-app failure
+
+First hypothesis: Debug builds put the app's code in `SPEND.debug.dylib`
+(`SpendShortcuts` symbols: 7 there, 0 in the `SPEND` executable), so iOS might
+not find the provider. The owner approved one more attempt to test it.
+
+Second attempt, same simulator, same driver test: a Release build signed the
+same way (ad-hoc, `TeamIdentifier=not set`), one binary with 13 `SpendShortcuts`
+symbols in `SPEND`, and the same `autoShortcutProviderMangledName`
+(`5SPEND14SpendShortcutsV`) in its metadata as the Debug build. Installed over
+the Debug build and opened once. Result: fail, the same "Unable to run App
+Shortcut" alert and the same error. The Debug-file hypothesis is rejected.
+
+Both attempts' logs show the order of events: iOS launches SPEND for the
+shortcut; SPEND connects back to the system App Intents service (`linkd`); `linkd`
+logs "Failed to generate bundleIdentity: Not a platform binary, checking
+teamId... Unable to get teamId from com.aymanabdalla.spend", then "Rejecting
+invalid client due to requiresValidBundle", then reports "Couldn't find
+AppShortcutsProvider." The likely cause is the missing Team ID in the
+simulator's ad-hoc signature, not the intent code. Not proven: a simulator build
+signed with a real team was not tried, because that needs the owner's account.
+AB2 already signs with the owner's team through the git-ignored settings file,
+so phone step 5 is the test. If step 5 fails on a team-signed build, the plan
+says Build stops and moves to Debug.
 
 ### Test-first and sensitivity evidence
 
@@ -399,19 +416,29 @@ Scratch logs and result bundles:
 `baseline`, `red`, `green`, `acceptance-pro`, `acceptance-se` (each `.log` and
 `.xcresult`), `release-build.log`, `release-build-after-comment.log`,
 `release-binary-*.sha`, `regen*.sha`, `tested-source-sha256.txt`,
-`final-source-sha256.txt`, `mutation/` and `shortcuts-attempt/` (driver project,
-logs, result bundle and simulator log).
+`final-source-sha256.txt`, `mutation/`, `shortcuts-attempt/` (driver project,
+logs, result bundle and simulator log) and `shortcuts-attempt-2/` (Release
+attempt: `release-signed-build.log`, `attempt.log`, `attempt.xcresult`, full
+`syslog-attempt.txt`, screenshots). The Release attempt's app was built with:
+
+```sh
+xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'platform=iOS Simulator,id=87D58183-18C9-453A-B535-ACEB34DB80D5'
+```
 
 Deliverables: `/Users/aympulse/aym/agents/outputs/spend/action-button/ab1/`:
 `test-summary-pro.json`, `test-summary-se.json`, `shortcut-*-pro.png` and
 `shortcut-*-se.png` (Quick Entry at launch, Dashboard after save, journal retry
 screen, draft kept after second run), `shortcuts-app-attempt-1-library.png`,
-`shortcuts-app-attempt-2-after-tap.png`, `shortcuts-attempt-syslog.txt`, and
-all exported test attachments under `pro/` and `se/`.
+`shortcuts-app-attempt-2-after-tap.png`, `shortcuts-attempt-syslog.txt` (these
+three are the first attempt), `release-attempt-1-library.png`,
+`release-attempt-2-after-tap.png`, `release-attempt-syslog-excerpt.txt`,
+`release-attempt-bundles.txt` (the Release attempt), and all exported test
+attachments under `pro/` and `se/`.
 
-The iPhone 17 Pro Max simulator used for the optional attempt now has SPEND.
-installed with its own normal journal from that one open. The two test
-simulators' normal journals were not opened by this work.
+The iPhone 17 Pro Max simulator used for the optional attempts now has the
+Release build of SPEND. installed, with its own normal journal from the opens,
+and is shut down. The two test simulators' normal journals were not opened by
+this work.
 
 ### Changed files
 
@@ -424,12 +451,16 @@ simulators' normal journals were not opened by this work.
 `ios/SPENDUITests/LogPurchaseShortcutUITests.swift`. `342959a`:
 `docs/plans/action-button.md` (status line set to approved and stacked). This
 record commit changes only `docs/agents/build.md` and the builder's
-`docs/agents/status.md` row.
+`docs/agents/status.md` row, and so does the later commit that records the
+Release attempt.
 
 ### Deviations and open items
 
 - The optional Shortcuts-app check is recorded as fail rather than the plan's
   "unavailable", because it ran and iOS refused.
+- The plan allowed one Shortcuts-app attempt; the owner approved a second
+  (Release build) to test the Debug-file hypothesis. No code or project setting
+  changed for it.
 - Add purchase and the shortcut now share one `openEntry()` helper, so they
   stay identical. Add purchase behaves as before; its existing UI tests pass.
 - The Dashboard's request handling has no unit test of its own (it is SwiftUI
