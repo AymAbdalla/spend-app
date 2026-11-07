@@ -9,6 +9,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | 249542912e05ee44e2d5e2f5318c824362b08f0b | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: all 5 optional follow-ups addressed; 21 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release build passed; new evidence below; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | 31ad678f6a61cc7016650a1121b99bfb8e81ea8c | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 25 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release passed; dedicated journal adoption and full-row visibility verified; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | bfc9b886dfc6572a96eadf673f03cf0f5bb3032e | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: documentation-only follow-up; roadmap cleanup prerequisite and decision caveat read back; git diff --check passed; no ios changes from checked 31ad678; no new runtime test claims | built | 2026-11-06 |
+| AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate; evidence below | built | 2026-11-07 |
 
 ## Scope and authorization
 
@@ -308,3 +309,134 @@ Next: say **recheck** in the existing independent Check chat for `bfc9b88` on
 `quick-entry-dashboard`, focusing on the requested roadmap/decision addition
 against the optional finding from `31ad678`. Report only, except checker-owned
 `checks.md` rows.
+
+## 2026-11-07 slice AB1: "Log a purchase" shortcut
+
+Branch `action-button-shortcut`, stacked on `quick-entry-dashboard` at `d289d2a`
+(the owner chose stacking on 2026-11-07 instead of merging into `main` first).
+Plan: `docs/plans/action-button.md`, approved by the owner on 2026-11-07 and
+committed in `342959a`. Code commit: `a6b2f55`. All runtime results below use a
+simulated trigger: DEBUG launch arguments make the app run the real intent
+itself. No iPhone was used and no Action Button was pressed.
+
+### Self-check results
+
+| Check | State | Observed result |
+| --- | --- | --- |
+| Full suite, iPhone 17 Pro, iOS 26.5 | pass | 37 of 37 passed (27 unit, 10 UI), 0 failed, 0 skipped, 0 build warnings, exit 0. |
+| Full suite, iPhone SE 3rd gen (SPEND Small Phone), iOS 26.5 | pass | Same 37 of 37, 0 skipped, 0 build warnings, exit 0. |
+| Existing behavior | pass | All 30 existing tests (25 unit, 5 UI) pass in both runs above. |
+| Cold launch, Quick Entry, save, Dashboard | pass | `testShortcutAtLaunchOpensQuickEntryAndSaves`: Quick Entry appears without any tap; the Done control (shown only while a field has focus) is present; typing 12.34 works without tapping the field; Save shows today $12.34 and one row containing Test cafe. |
+| Journal failed to open | pass | `testShortcutWaitsForJournalRetryThenOpensQuickEntry`: retry screen and no Quick Entry first; after Try again, Quick Entry opens focused; Cancel leaves $0.00. |
+| Request made before the Dashboard exists | pass | The launch hook starts `perform()` from the app initializer, before any view exists, and the retry test above makes the order certain. That the request also lands before the journal's load task is likely (both queue on the main actor in order) but not observed. |
+| Cancel after a shortcut open | pass | `testCancelAfterShortcutSavesNothing`: $0.00, 0 rows, no "Purchase saved." label. |
+| Typed draft kept | pass | `testShortcutAgainKeepsTypedDraft`: 8.75 typed, app sent Home and reactivated (second request), field still 8.75, one amount field. |
+| No false "Purchase saved" | pass | `testShortcutAfterSaveClearsOldConfirmation`: after a save, a second request opens Quick Entry with the old label gone while the sheet is open and after Cancel; today stays $12.34 with 1 row. Spoken output not checked. |
+| Intent only records a request | pass | Unit test: `perform()` sets the shared request flag. Checked by reading plus grep: the intent files and request holder mention journal, store, context, save or commit only in comments and the title. |
+| Intent opens the app | pass | Unit test: `openAppWhenRun` is true; on iOS 26.5 `supportedModes` equals `.foreground(.immediate)`. |
+| Shortcut published to iOS | pass | Release `SPEND.app/Metadata.appintents/extract.actionsdata`: action `LogPurchaseIntent`, title "Log a purchase", `openAppWhenRun` true, `supportedModes` 2, 0 parameters; autoShortcuts phrase "Log a purchase in ${applicationName}", short title "Log a purchase", image `plus.circle`. The "Metadata extraction skipped" notice now appears only for the SPENDUITests target in Debug, and 0 times in the Release build log. |
+| Release simulator build | pass | `BUILD SUCCEEDED`, exit 0. |
+| DEBUG hooks absent from Release | pass | `strings` on the Release `SPEND` binary: 0 matches for each of the 6 hook arguments (2 new, 4 existing). The Debug binary has 1 of each, so the search can find them. |
+| Project regeneration | pass | XcodeGen 2.46.0 run twice: identical project and scheme hashes; the project diff only adds the 5 new files. |
+| Security self-review | pass | No networking, logging, packages, entitlements or secrets added. The intent takes no input and returns nothing; it can't read, speak or save purchases. Hooks need DEBUG plus a valid test-store UUID. |
+| Optional: tap "Log a purchase" in the Simulator's Shortcuts app | fail (optional, not a gate) | iPhone 17 Pro Max simulator, iOS 26.5, Debug build with ad-hoc "Sign to Run Locally" signing (no team), installed and opened once. The Shortcuts app lists SPEND.'s "Log a purchase" tile; tapping it shows "Unable to run App Shortcut". Simulator log: `LNActionForAutoShortcutPhraseFetchError Code=1 "Couldn't find AppShortcutsProvider."` The plan said to record a refusal as unavailable; the check did run, so it is recorded as fail. |
+| Action Button press, locked phone, iOS 17 to 25, spoken VoiceOver | unavailable | Need the owner's iPhone (AB2) or an older runtime. |
+| Independent Check | pending | Per the plan, one fresh chat checks 1, AB1, AB2 and security together after AB2. |
+
+Hypothesis for the Shortcuts-app failure, not tested: Debug builds put the
+app's code in `SPEND.debug.dylib`. The `SpendShortcuts` symbols are in that
+file (7) and not in the `SPEND` executable (0), while the Release app has one
+binary. If iOS looks for the provider in the main executable, Debug builds would
+fail this way. This matters for AB2, because Xcode's Run installs a Debug build
+on the phone. Testing it needs a second simulator attempt (a Release build, or
+`ENABLE_DEBUG_DYLIB = NO`), which is beyond the plan's single attempt.
+
+### Test-first and sensitivity evidence
+
+- `baseline`: one existing unit test passed before any new test was written.
+- `red`: stubs (`request()` did nothing, `openAppWhenRun` false, `supportedModes`
+  `.background`, `perform()` did nothing). All 7 new tests compiled and failed on
+  assertions: request flag false; `openAppWhenRun` false; `IntentModes(rawValue: 1)`
+  versus 2; all 5 UI tests at "Quick Entry should open".
+- `green`: the 7 new tests passed on the first implementation.
+- `mutation/mutation-a`: the shortcut path skipped `saved = false` and closed an
+  already open sheet. The confirmation test failed at the label check while the
+  sheet was open; the draft test failed when the sheet did not come back. Restored
+  from a saved copy; `cmp` identical.
+- `mutation/mutation-b`: Quick Entry's initial focus removed. The cold-launch
+  test failed with "The amount field should be focused". Restored; `cmp`
+  identical and `git diff` empty for Quick Entry.
+- After the full runs, one code comment in `AppConfiguration.swift` was reworded
+  (same line count) so it no longer claims the hook runs "before the journal
+  opens". The Release rebuild recompiled the file and the `SPEND` binary's
+  SHA-256 stayed `4321923a37286112784b3cc27e1f50dbd115f386a7c507933c02756dc3f1bde2`.
+  Tested and committed source hashes differ only for that file.
+
+Expected values come from the plan: 12.34, Test cafe, $12.34 and one row from
+the AB1 acceptance check; `openAppWhenRun` true and `.foreground(.immediate)`
+from the AB1 build notes; $0.00 and no rows after Cancel, and the typed amount
+kept, from the Agreed behavior table.
+
+### Reproduction and artifacts
+
+Repository root: `/Users/aympulse/aym/projects/spend-app`. Xcode 27.2 (27B52),
+iOS 26.5 (23F77) runtime, XcodeGen 2.46.0. Test data is synthetic.
+
+```sh
+xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=6392B603-3453-49E8-9124-17FBBAC89C3D' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+```sh
+xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=45D6AC76-2BBA-490E-9A09-E35E2419A1F2' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+```sh
+xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+```
+
+Scratch logs and result bundles:
+`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab1/`:
+`baseline`, `red`, `green`, `acceptance-pro`, `acceptance-se` (each `.log` and
+`.xcresult`), `release-build.log`, `release-build-after-comment.log`,
+`release-binary-*.sha`, `regen*.sha`, `tested-source-sha256.txt`,
+`final-source-sha256.txt`, `mutation/` and `shortcuts-attempt/` (driver project,
+logs, result bundle and simulator log).
+
+Deliverables: `/Users/aympulse/aym/agents/outputs/spend/action-button/ab1/`:
+`test-summary-pro.json`, `test-summary-se.json`, `shortcut-*-pro.png` and
+`shortcut-*-se.png` (Quick Entry at launch, Dashboard after save, journal retry
+screen, draft kept after second run), `shortcuts-app-attempt-1-library.png`,
+`shortcuts-app-attempt-2-after-tap.png`, `shortcuts-attempt-syslog.txt`, and
+all exported test attachments under `pro/` and `se/`.
+
+The iPhone 17 Pro Max simulator used for the optional attempt now has SPEND.
+installed with its own normal journal from that one open. The two test
+simulators' normal journals were not opened by this work.
+
+### Changed files
+
+`a6b2f55`: `README.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` (013),
+`docs/ROADMAP.md`, `ios/SPEND.xcodeproj/project.pbxproj`,
+`ios/SPEND/App/AppConfiguration.swift`, `ios/SPEND/App/QuickEntryRequest.swift`,
+`ios/SPEND/App/SpendApp.swift`, `ios/SPEND/Features/Dashboard/DashboardView.swift`,
+`ios/SPEND/Intents/LogPurchaseIntent.swift`, `ios/SPEND/Intents/SpendShortcuts.swift`,
+`ios/SPENDTests/LogPurchaseIntentTests.swift`,
+`ios/SPENDUITests/LogPurchaseShortcutUITests.swift`. `342959a`:
+`docs/plans/action-button.md` (status line set to approved and stacked). This
+record commit changes only `docs/agents/build.md` and the builder's
+`docs/agents/status.md` row.
+
+### Deviations and open items
+
+- The optional Shortcuts-app check is recorded as fail rather than the plan's
+  "unavailable", because it ran and iOS refused.
+- Add purchase and the shortcut now share one `openEntry()` helper, so they
+  stay identical. Add purchase behaves as before; its existing UI tests pass.
+- The Dashboard's request handling has no unit test of its own (it is SwiftUI
+  view state). The UI tests and both mutation runs cover it.
+- Not tested: a request that arrives while the sheet is mid-dismissal (plan
+  risk). The current hooks can't time it reliably.
+- Leaving and returning in the UI tests uses the Home button and
+  `XCUIApplication.activate()`.
+- The merge gate counts slice 1 on this branch too (stacked), so the final
+  Check must record fresh rows for 1, AB1, AB2 and security.
