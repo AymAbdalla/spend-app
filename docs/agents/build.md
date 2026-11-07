@@ -10,6 +10,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | 31ad678f6a61cc7016650a1121b99bfb8e81ea8c | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: 25 unit + 5 UI tests passed on each of Pro and SE, no skips/runtime warnings; Release passed; dedicated journal adoption and full-row visibility verified; independent recheck pending | built | 2026-11-06 |
 | 1 | spend-core | quick-entry-dashboard | bfc9b886dfc6572a96eadf673f03cf0f5bb3032e | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: documentation-only follow-up; roadmap cleanup prerequisite and decision caveat read back; git diff --check passed; no ios changes from checked 31ad678; no new runtime test claims | built | 2026-11-06 |
 | AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate, and an owner-approved Release retry failed the same way, with the log showing iOS rejected the app for having no Team ID; evidence below | built | 2026-11-07 |
+| AB2 | spend-core | action-button-shortcut | 573286721f91475dd7bb0a79a36875be9b499ff1 | On the owner's iPhone 18 Pro: Settings → Action Button → Shortcut lists "Log a purchase"; tapping it in the Shortcuts app opens Quick Entry; pressing the button from the Home Screen opens Quick Entry; saving a clearly fake purchase (TEST, 1.00) shows it on the Dashboard; it is still there after force-quit, lock and unlock. `git grep` finds no team ID. Simulator suites still pass. | self-check: 37 of 37 tests on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5, 0 skipped, 0 compiler warnings; Release build passed; the local file's team reaches the app and both test targets in Debug and Release and is absent without it; git ignores the file and the team ID has 0 matches in files or history; fresh clone builds for the simulator; phone steps 3 to 8 and 10 passed and step 9 was observed (owner-observed, iPhone 18 Pro, iOS 27.2, screenshots only because Mac screen recording is unsupported); merchant saved as "Test", as typed; evidence below | built | 2026-11-07 |
 
 ## Scope and authorization
 
@@ -471,3 +472,118 @@ Release attempt.
   `XCUIApplication.activate()`.
 - The merge gate counts slice 1 on this branch too (stacked), so the final
   Check must record fresh rows for 1, AB1, AB2 and security.
+
+## 2026-11-07 slice AB2: Action Button on the owner's iPhone
+
+### Scope and authorization
+
+The owner said "go" for AB2 after AB1 and the Release Shortcuts attempt, then
+"yes" to the builder writing the team ID (read from the Apple Development
+certificate) into the git-ignored local file, building and installing over
+Wi-Fi from Terminal, and taking phone screenshots from the Mac. The owner
+performed every phone step. Nothing was pushed or merged.
+
+### Signing change
+
+`ios/Config/Signing.xcconfig` (committed) optionally includes
+`ios/Config/Signing.local.xcconfig` (git-ignored), which holds
+`DEVELOPMENT_TEAM`. `ios/project.yml` attaches the committed file to the
+project's Debug and Release configurations through `configFiles` and no longer
+sets an empty `DEVELOPMENT_TEAM`. Regenerated with XcodeGen 2.46.0; two runs gave
+identical project and scheme hashes. The project diff adds the file and group,
+sets it as the base configuration, and removes the empty team values.
+
+| Check | State | Observed result |
+| --- | --- | --- |
+| Before the change, a local team file is ignored | pass (red) | Clone at `bbc1983` with a local file holding `FAKETEAM01`: `xcodebuild -showBuildSettings` has no `DEVELOPMENT_TEAM` and no `FAKETEAM01`. |
+| After the change, the local team reaches every target | pass | Clone with the change and the fake file: `DEVELOPMENT_TEAM = FAKETEAM01` for SPEND in Debug and Release, and for SPENDTests and SPENDUITests. Without the file: no team. |
+| The empty team value had to go | pass (mutation) | Putting `DEVELOPMENT_TEAM: ""` back in `project.yml` and regenerating: 0 matches for `FAKETEAM01`. Restored; `cmp` identical. |
+| Git ignores the local file | pass | `git check-ignore -v` names `.gitignore:14`; `git status --ignored` lists it as ignored. |
+| Team ID stays out of git | pass | `git grep --untracked` for the real team ID: none. `git log -p --all`: 0 matches. |
+| Fresh clone builds for the simulator | pass | Clone of `5732867` (no local file): Debug simulator build succeeded, "Sign to Run Locally", 0 compiler warnings. |
+| Full suite, iPhone 17 Pro, iOS 26.5 | pass | 37 of 37 (27 unit, 10 UI), 0 failed, 0 skipped, exit 0. The only `warning:` line is the known App Intents metadata notice for SPENDUITests; 0 compiler warnings. |
+| Full suite, iPhone SE 3rd gen, iOS 26.5 | pass | Same 37 of 37, 0 skipped, exit 0, same single notice. |
+| Release simulator build | pass | `BUILD SUCCEEDED`, 0 warnings. |
+| Tested source equals committed source | pass | SHA-256 of `.gitignore`, `project.yml`, `project.pbxproj` and `Signing.xcconfig` before commit match the hashes taken when the suites ran. Docs changed after the runs. |
+
+### Phone checklist (iPhone 18 Pro, iOS 27.2)
+
+Phone results are owner-observed: the owner pressed the button and typed; the
+builder captured each screen from the Mac only after the owner said it was
+showing. Screenshots show screens, not the physical button presses.
+
+| Step | State | Evidence and notes |
+| --- | --- | --- |
+| 0. No real purchases on the phone | pass | Developer app list on the phone had no `com.aymanabdalla.spend` before install. |
+| 1. Connected, trusted, Developer Mode | pass | Device details: paired, connected over the local network, Developer Mode enabled. No cable needed. |
+| 2. Team in the local file, install, open once | pass | Team read from the certificate's OU field, written without printing it. Build signed with "Apple Development" and "iOS Team Provisioning Profile: *"; app signature has a 10-character TeamIdentifier. Installed and launched with `devicectl`. |
+| 3. Dashboard with 0 purchases | pass | `step-3-dashboard-empty.png`: today, week and month $0.00. |
+| 4. Action Button → Shortcut lists "Log a purchase" | pass | `step-4-action-button-setting.png`: Shortcut, "Log a purchase" selected. Its icon is a blank placeholder (the app has no icon). |
+| 5. Shortcuts app tap opens Quick Entry | pass | `step-5-shortcuts-app-opens-quick-entry.png`: Quick Entry, cursor in the amount field, decimal keypad up. The same tap failed on the ad-hoc simulator builds, which supports the missing-Team-ID explanation in AB1. |
+| 6. Button press from the Home Screen, app closed | pass | `step-6-action-button-opens-quick-entry.png`: Quick Entry, amount field focused. Screen recording was unavailable (see deviations). |
+| 7. Enter 1.00 and TEST, Save | pass | `step-7-saved-test-purchase.png`: "Purchase saved.", today, week and month $1.00, one row "Test" $1.00. The merchant field capitalizes sentences and the app only trims spaces (`JournalStore.swift:77`), so "Test" is what the keyboard produced. |
+| 8. Type 2, press the button again | pass | `step-8-second-press-keeps-draft.png`: Quick Entry still open with 2 and the cursor in the amount field. After Cancel the total stayed $1.00 (`step-9-after-unlock-dashboard.png`). |
+| 9. Locked phone, press the button | observed | First try: iOS asked for the passcode; the owner answered the builder before entering it, and iOS refused the launch. Notification text as the owner typed it, with typing errors corrected: "The request was denied by service delegate (SBMainWorkspace) for reason: Locked ("Unable to launch com.aymanabdalla.spend because the device was not, or could not be, unlocked"). The request to open "com.aymanabdalla.spend" failed." Unlocking showed the Dashboard the owner had left open, with no Quick Entry, so the intent did not reach the app. Retry with SPEND. closed and the passcode entered at once: Quick Entry opened with the amount field ready and no journal error (`step-9-retry-passcode-then-quick-entry.png`). |
+| 10. Force-quit, lock about 20 s, unlock, reopen | pass | `step-10-after-force-quit-lock-totals.png` and `step-10-after-force-quit-lock-row.png`: $1.00 totals and one row "Test", $1.00, Other · Planned, Nov 7, 2026 at 6:34 PM. |
+
+DECISIONS 011 and 013 record the phone observations. The ROADMAP ticks
+"Action Button setup" and "Test on physical iPhone" because their checklist
+steps passed.
+
+### Reproduction and artifacts
+
+```sh
+xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Debug -destination 'id=<iPhone UDID>' -allowProvisioningUpdates
+```
+
+```sh
+xcrun devicectl device install app --device <iPhone UDID> <DerivedData>/Build/Products/Debug-iphoneos/SPEND.app
+```
+
+```sh
+xcrun devicectl device capture screenshot --device <iPhone UDID> --destination <file>.png
+```
+
+The simulator suite commands are the same as AB1's. Scratch:
+`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab2/`
+(`red-clone/`, `green-clone/`, `fresh-clone/`, `acceptance-pro` and
+`acceptance-se` logs and result bundles, `release-build.log`,
+`clone-sim-build.log`, `fresh-clone-build.log`, `phone-build.log`,
+`phone-install.log`, settings dumps, `tested-change-sha256.txt`,
+`precommit-sha.txt`). Deliverables:
+`/Users/aympulse/aym/agents/outputs/spend/action-button/ab2/` (the 10
+screenshots named above).
+
+### Changed files
+
+`5732867`: `.gitignore`, `README.md` (Run on an iPhone steps, status),
+`docs/ARCHITECTURE.md` (one signing sentence), `docs/DECISIONS.md` (011 phone
+observation, 013 limits), `docs/ROADMAP.md`, `ios/Config/Signing.xcconfig`,
+`ios/project.yml`, `ios/SPEND.xcodeproj/project.pbxproj`. This record commit
+changes only `docs/agents/build.md` and the builder's `docs/agents/status.md`
+row.
+
+### Deviations, follow-ups and untested
+
+- The owner approved installing from Terminal (`xcodebuild` and `devicectl`)
+  instead of pressing Run in Xcode, and the builder writing the team into the
+  local file. Both still keep the team out of git.
+- The plan asked for a screen recording of steps 6 and 7. `devicectl` reported
+  "The capability Screen Recording is not supported by this device" over the
+  Wi-Fi connection, so screenshots were used.
+- Two screenshots caught unrelated personal content (another app, then the lock
+  screen). Both were deleted on the spot and are not in the evidence.
+- Step 9 was run twice because the first passcode prompt went unanswered.
+- The plan listed DECISIONS 011 for AB2; 013's limits paragraph and one
+  ARCHITECTURE sentence were also updated so they don't contradict the result.
+- Follow-up: SPEND. has no app icon, so the Action Button setting, Shortcuts and
+  notifications show a blank placeholder.
+- Follow-up: on the iPhone 18 Pro at default text size, the Dashboard's first
+  recent purchase (and the empty-state line) sits behind the Add purchase bar
+  until the owner scrolls.
+- The phone keeps the Debug build with one "Test" $1.00 purchase, and the Action
+  Button stays set to "Log a purchase". Removing the purchase needs edit/delete
+  or deleting the app. The local signing file stays in the working tree.
+- Not tested: iOS 17 to 25, spoken VoiceOver output and the save announcement on
+  the phone, Siri by voice, Spotlight, and whether the journal files are
+  unreadable while locked.
