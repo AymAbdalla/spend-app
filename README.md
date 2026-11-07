@@ -48,8 +48,15 @@ Quick Entry → local SwiftData → Dashboard. Build verification and independen
 Check are separate; see `docs/agents/` for the recorded state when available.
 
 This slice uses USD, positive purchase amounts, and visible Other / Planned
-defaults. Action Button integration, history/edit/delete, CSV export, and weekly
-reflection remain later work. There are no third-party app dependencies.
+defaults. There are no third-party app dependencies.
+
+The "Log a purchase" App Shortcut (slice AB1, on `action-button-shortcut`) opens
+SPEND. straight into Quick Entry. It only opens the app: nothing is saved until
+you tap Save. iOS lists it in the Shortcuts app, Spotlight, Siri ("Log a purchase
+in SPEND.") and Settings → Action Button → Shortcut. Simulator tests cover what
+happens once it runs; running it from the Action Button on an iPhone is slice AB2
+in `docs/plans/action-button.md` and is not verified yet. History/edit/delete,
+CSV export, and weekly reflection remain later work.
 
 ## Open and Run
 

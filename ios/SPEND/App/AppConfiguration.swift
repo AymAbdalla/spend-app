@@ -44,6 +44,18 @@ enum AppConfiguration {
         }
     }
 
+    /// DEBUG UI tests only. The Simulator can't press the Action Button for a
+    /// shortcut, so tests run the real "Log a purchase" intent from inside the
+    /// app: once from the app's initializer, before any screen exists, or each
+    /// time the app becomes active.
+    static func runShortcutForUITests(atLaunch: Bool) {
+        #if DEBUG
+        let flag = atLaunch ? "-run-log-purchase-at-launch" : "-run-log-purchase-on-activate"
+        guard testStoreID != nil, ProcessInfo.processInfo.arguments.contains(flag) else { return }
+        Task { _ = try? await LogPurchaseIntent().perform() }
+        #endif
+    }
+
     static var colorScheme: ColorScheme? {
         #if DEBUG
         if testStoreID != nil, argument(after: "-ui-appearance") == "dark" { return .dark }

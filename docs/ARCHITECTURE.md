@@ -37,6 +37,7 @@ Current feature organization in `ios/SPEND/`:
 - Models
 - Features/Dashboard
 - Features/QuickEntry
+- Intents
 - Services
 
 `SpendApp` owns recoverable store loading. `JournalStore` creates the local
@@ -84,7 +85,20 @@ separator or a decimal point, rejects grouping and over-precision, and checks
 integer overflow. Aggregation also checks overflow instead of showing a wrapped
 or partial total. Formatting uses Decimal and an explicit USD currency code.
 
-Transactions/history, reflection, and App Intents remain later roadmap work.
+`Intents/LogPurchaseIntent` is the App Intent behind the "Log a purchase" App
+Shortcut, which `Intents/SpendShortcuts` publishes to Shortcuts, Spotlight, Siri
+and the Action Button setting. The intent opens the app and calls
+`QuickEntryRequest.shared.request()`; it receives no input and never touches
+`StoreState`, the container, a context, the commit closure or `JournalStore`.
+`QuickEntryRequest` is a main-actor observable holder with one pending flag, so
+repeated runs collapse into one request. It is shared because iOS can run the
+intent before any SwiftUI view exists. `DashboardView` observes the flag with
+`onChange(initial: true)`, so a request made during start-up or on the retry
+screen is honored when the Dashboard first appears. It clears the flag, and
+opens Quick Entry the same way as Add purchase unless the sheet is already open,
+in which case the typed draft stays. See DECISIONS 013.
+
+Transactions/history and reflection remain later roadmap work.
 
 ## Project and Test Isolation
 
@@ -102,6 +116,14 @@ boundaries in the original failure tests; the model and calculations remain real
 Hosted XCTest unit runs receive no app `StoreState`, so the app displays an empty
 host view and never starts normal journal loading. A valid DEBUG UI-test UUID
 keeps the real app path available for UI tests.
+
+The Simulator can't run the shortcut from the Action Button, so shortcut UI tests
+use a simulated trigger. With a valid DEBUG test-store UUID,
+`-run-log-purchase-at-launch` starts the real intent's `perform()` from the app's
+initializer, before any view exists, and `-run-log-purchase-on-activate` runs it each
+time the app becomes active, including the first launch. Release builds don't
+contain either argument. These tests prove what happens once the intent runs, not
+that iOS runs it when the button is pressed.
 
 Protection tests observe requests at the filesystem attribute-setting boundary
 while using real temporary SQLite stores. They cover new stores, reopening

@@ -31,7 +31,7 @@ reimported from those copies.
 
 ## Phase 2 — iPhone Integration
 
-- [ ] App Intent / App Shortcut
+- [x] App Intent / App Shortcut
 - [ ] Action Button setup
 - [ ] Test on physical iPhone
 - [ ] CSV export

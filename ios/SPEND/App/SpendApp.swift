@@ -3,8 +3,11 @@ import SwiftData
 
 @main @MainActor
 struct SpendApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var store = AppConfiguration.makeStoreState()
     private let commit = AppConfiguration.makeCommit()
+
+    init() { AppConfiguration.runShortcutForUITests(atLaunch: true) }
 
     var body: some Scene {
         WindowGroup {
@@ -16,12 +19,15 @@ struct SpendApp: App {
                 Color.clear
             }
         }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { AppConfiguration.runShortcutForUITests(atLaunch: false) }
+        }
     }
 
     private func journalContent(_ store: StoreState) -> some View {
         Group {
             if let container = store.container {
-                DashboardView(commit: commit)
+                DashboardView(commit: commit, entryRequest: .shared)
                     .modelContainer(container)
             } else if store.hasError {
                 ContentUnavailableView {

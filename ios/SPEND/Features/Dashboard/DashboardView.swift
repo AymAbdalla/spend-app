@@ -11,6 +11,7 @@ struct DashboardView: View {
     @State private var now = Date()
     private let clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     let commit: (ModelContext) throws -> Void
+    let entryRequest: QuickEntryRequest
 
     var body: some View {
         NavigationStack {
@@ -35,8 +36,7 @@ struct DashboardView: View {
             .navigationTitle("SPEND.")
             .safeAreaInset(edge: .bottom) {
                 Button {
-                    saved = false
-                    showingEntry = true
+                    openEntry()
                 } label: {
                     Label("Add purchase", systemImage: "plus")
                         .font(.headline)
@@ -61,6 +61,23 @@ struct DashboardView: View {
         .onReceive(clock) { now = $0 }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in now = Date() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { now = Date() } }
+        // initial: true also honors a request made before this screen existed.
+        .onChange(of: entryRequest.isPending, initial: true) { _, isPending in
+            if isPending { openEntryForShortcut() }
+        }
+    }
+
+    /// Clears the old "Purchase saved." first, so a later Cancel can't announce it.
+    private func openEntry() {
+        saved = false
+        showingEntry = true
+    }
+
+    /// The "Log a purchase" shortcut opens Quick Entry like Add purchase. If the
+    /// sheet is already open, it stays as it is, which keeps a typed draft.
+    private func openEntryForShortcut() {
+        entryRequest.markHandled()
+        if !showingEntry { openEntry() }
     }
 
     @ViewBuilder private var summaryContent: some View {

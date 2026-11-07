@@ -119,3 +119,32 @@ Cancel and failed saves must not announce success. This implements the owner's
 optional accessibility follow-up; audible VoiceOver acceptance remains open.
 
 Reference: Apple's [announcement documentation](https://developer.apple.com/documentation/accessibility/accessibilitynotification/announcement).
+
+## 013 — The Shortcut Only Opens Quick Entry
+
+Decision: Offer one App Shortcut, "Log a purchase" (Siri and Spotlight phrase
+"Log a purchase in SPEND.", icon `plus.circle`). Its App Intent opens the app
+and leaves a single "open Quick Entry" request in a holder that outlives the
+Dashboard. The Dashboard honors the request the same way as Add purchase: it
+clears an old "Purchase saved." confirmation, then presents Quick Entry. If
+Quick Entry is already open, it stays open and keeps the typed draft. The
+intent declares `openAppWhenRun` for iOS 17 to 25 and
+`supportedModes = .foreground(.immediate)` for iOS 26 and later. The owner
+approved `docs/plans/action-button.md` on 2026-11-07 and chose to stack this
+work on `quick-entry-dashboard` instead of merging it into `main` first.
+
+Reason: Manual entry stays deliberate (002, 009). Nothing is saved until the
+owner taps Save, and the journal keeps one foreground writer. The intent
+cannot read, return, speak or save purchases, so Siri, Spotlight, Shortcuts
+automations and the lock screen never expose journal content. Because the
+request outlives the Dashboard, a shortcut run during start-up or on the
+"Try again" screen still opens Quick Entry once the journal is open. Clearing
+the old confirmation stops a later Cancel from announcing success (012).
+
+Limits: simulator tests run the real intent through DEBUG-only launch
+arguments (a simulated trigger). They don't prove that iOS runs it when the
+Action Button is pressed, what happens on a locked phone, or how iOS 17 to 25
+behave. The phone checklist in slice AB2 covers the first two.
+
+Reference: the iOS 27.2 SDK's App Intents interface marks `openAppWhenRun`
+deprecated from iOS 26 with "Please provide 'supportedModes' instead".
