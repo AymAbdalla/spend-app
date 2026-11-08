@@ -36,6 +36,7 @@ Current feature organization in `ios/SPEND/`:
 - App
 - Models
 - Features/Dashboard
+- Features/History
 - Features/QuickEntry
 - Intents
 - Services
@@ -98,7 +99,28 @@ screen is honored when the Dashboard first appears. It clears the flag, and
 opens Quick Entry the same way as Add purchase unless the sheet is already open,
 in which case the typed draft stays. See DECISIONS 013.
 
-Transactions/history and reflection remain later roadmap work.
+`Features/History` holds the read-only History screen, the purchase detail and
+the shared row. `HistoryView` runs its own `@Query` on the same container and
+groups the purchases with `Services/DaySections`, a pure function over anything
+with a date and an amount in cents (`Purchase` and `SpendingRecord` both
+qualify) plus an explicit `Calendar`: one section per calendar day of the
+device calendar, newest day first and newest purchase first within a day, each
+day's total added with the same overflow check as `SpendingSummary`, and the
+same `invalidRecord` and `totalTooLarge` errors shown as a message instead of a
+partial list. `PurchaseRow` is the one row layout the Dashboard and History
+share (merchant with the amount at the trailing edge, category · type, then the
+time or the date and time); it stacks at accessibility text sizes and reads as
+one accessibility element. `PurchaseDetailView` shows every stored field and
+has no controls that change the journal. The Dashboard's `NavigationStack` is
+value-based (`NavigationStack(path:)`): "See all" pushes a `HistoryDestination`
+marker and any row pushes its `Purchase`. Because the path is a value the
+Dashboard owns, the shortcut handler clears it before presenting Quick Entry,
+so "Purchase saved." always lands on the Dashboard. Grouping runs in the view
+body on every change, which is fine for hundreds of purchases; thousands would
+call for a sectioned fetch. See DECISIONS 014.
+
+Edit and delete, category filtering, search, CSV export and reflection remain
+later roadmap work.
 
 ## Project and Test Isolation
 
@@ -129,6 +151,14 @@ time the app becomes active, including the first launch. Release builds don't
 contain either argument. These tests prove what happens once the intent runs, not
 that iOS runs it when the button is pressed.
 
+History UI tests use `-seed-history-fixture`, another DEBUG-only argument that
+needs a valid test-store UUID. When that test store is empty, the loader saves
+four synthetic purchases through `PurchaseWriter` on fixed calendar dates in the
+device time zone (Jan 15 and Jan 14, 2026 and Jun 1, 2030), so day headers and
+totals are the same in any time zone and on any run date, and the future date
+keeps the Dashboard's today total at $0.00. A store that already has purchases
+is left alone, and the Release binary does not contain the argument.
+
 Protection tests observe requests at the filesystem attribute-setting boundary
 while using real temporary SQLite stores. They cover new stores, reopening
 existing stores, and failures without purchase loss. The simulator does not
@@ -136,8 +166,8 @@ expose the file-protection class on readback; these checks prove the requested
 policy, not hardware encryption or lock/unlock enforcement on an iPhone.
 
 Native text styles, system surfaces, a system accent, scrolling forms, labelled
-controls, and vertical summary rows at accessibility text sizes form the initial
-design system. Quick Entry places its Done control in a safe-area inset above
+controls, an inset grouped list for History and the detail, and vertical
+summary rows at accessibility text sizes form the initial design system. Quick Entry places its Done control in a safe-area inset above
 the keyboard, keeping it reachable without a custom keyboard. Dashboard cards use
 `secondarySystemGroupedBackground` to retain a distinct surface in both
 appearances. A successful save posts an accessibility announcement after sheet

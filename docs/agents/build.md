@@ -11,6 +11,7 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | 1 | spend-core | quick-entry-dashboard | bfc9b886dfc6572a96eadf673f03cf0f5bb3032e | Enter a USD 12.34 purchase, save once, observe it and matching totals on Dashboard, terminate/relaunch, and observe the same persisted purchase exactly once. | self-check: documentation-only follow-up; roadmap cleanup prerequisite and decision caveat read back; git diff --check passed; no ios changes from checked 31ad678; no new runtime test claims | built | 2026-11-06 |
 | AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate, and an owner-approved Release retry failed the same way, with the log showing iOS rejected the app for having no Team ID; evidence below | built | 2026-11-07 |
 | AB2 | spend-core | action-button-shortcut | 573286721f91475dd7bb0a79a36875be9b499ff1 | On the owner's iPhone 18 Pro: Settings → Action Button → Shortcut lists "Log a purchase"; tapping it in the Shortcuts app opens Quick Entry; pressing the button from the Home Screen opens Quick Entry; saving a clearly fake purchase (TEST, 1.00) shows it on the Dashboard; it is still there after force-quit, lock and unlock. `git grep` finds no team ID. Simulator suites still pass. | self-check: 37 of 37 tests on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5, 0 skipped, 0 compiler warnings; Release build passed; the local file's team reaches the app and both test targets in Debug and Release and is absent without it; git ignores the file and the team ID has 0 matches in files or history; fresh clone builds for the simulator; phone steps 3 to 8 and 10 passed and step 9 was observed (owner-observed, iPhone 18 Pro, iOS 27.2, screenshots only because Mac screen recording is unsupported); merchant saved as "Test", as typed; evidence below | built | 2026-11-07 |
+| H1 | spend-core | transaction-history | 4c8cdb0436fae523d23b90ed875f83867edeeecf | On a seeded test store: Dashboard → See all shows History with three day sections in the order Jun 1, 2030; Jan 15, 2026; Jan 14, 2026, totals $60.00, $36.60 and $2.75, and four rows; tapping Weekly grocer shows $32.10, Weekly grocer, Groceries, Planned, Jan 15, 2026 at 6:40 PM and "Weekly shop"; Back returns to History; the Dashboard's today total stays $0.00. A relaunch without the seed argument shows the same sections. A fresh store shows the empty state. All 37 existing tests still pass on iPhone 17 Pro and SPEND Small Phone (iOS 26.5); the Release simulator build passes; the seed argument is absent from the Release binary. | self-check: 49 of 49 tests (34 unit, 15 UI; 7 unit and 5 UI new) passed on each of iPhone 17 Pro and SPEND Small Phone, iOS 26.5, 0 skipped, 0 warnings; Release simulator build passed; the seed argument and the 6 earlier hook arguments are absent from the Release binary and present once each in the Debug code library; normal journals unchanged; XcodeGen byte-stable; one visual defect (merchant truncated at accessibility text sizes) fixed before the final runs; evidence below | built | 2026-11-07 |
 
 ## Scope and authorization
 
@@ -587,3 +588,150 @@ row.
 - Not tested: iOS 17 to 25, spoken VoiceOver output and the save announcement on
   the phone, Siri by voice, Spotlight, and whether the journal files are
   unreadable while locked.
+
+## 2026-11-07 slice H1: History list and purchase detail
+
+### Scope and authorization
+
+The owner asked on 2026-11-07 to build slice H1 from
+`docs/plans/transaction-history.md` with implement-this, in the worktree
+`.claude/worktrees/transaction-history` on branch `transaction-history`. That
+request approved the plan, including the open decision that the Dashboard's
+recent rows adopt the shared row layout and the stated defaults (titles
+"History" and "Purchase", weekday-and-date headers). Work stayed on the
+branch: the slice commit and this records commit. Nothing was pushed or merged.
+
+### Self-check results
+
+| Check | State | Observed result |
+| --- | --- | --- |
+| Full suite, iPhone 17 Pro, iOS 26.5 | pass | 49 of 49 (34 unit, 15 UI), 0 failed, 0 skipped, exit 0, 0 `warning:` lines in the log. |
+| Full suite, iPhone SE 3rd gen (SPEND Small Phone), iOS 26.5 | pass | Same 49 of 49, 0 skipped, exit 0, 0 `warning:` lines. |
+| Existing behavior | pass | All 37 existing tests (27 unit, 10 UI) pass in both runs, including the `purchaseRow` identifier, label and position checks now that each row is a navigation link. |
+| Day grouping and totals (unit) | pass | 7 `DaySectionsTests`: the seed fixture given out of order gives days 2030-06-01, 2026-01-15, 2026-01-14 with totals 6000, 3660, 275 cents and items newest first within a day; 10 + 20 = 30; New York spring-forward day boundaries at 05:00Z and 04:00Z; year boundary splits into two days; empty input gives no sections; overflow throws `totalTooLarge`; 0 and -1 cents throw `invalidRecord`. |
+| History sections, totals and order | pass | `testSeededHistoryShowsDaySectionsDetailAndSurvivesRelaunch`: headers "Sat, Jun 1, 2030", "Thu, Jan 15, 2026", "Wed, Jan 14, 2026" top to bottom with totals $60.00, $36.60, $2.75; 4 `historyRow` elements; Weekly grocer above Corner bakery; Dashboard today total $0.00 before and after. |
+| Detail shows every field | pass | Same test: $32.10, Weekly grocer, Jan 15, 2026 at 6:40 PM, "Category, Groceries", "Type, Planned", "Weekly shop"; Back returns to History with 4 rows; Back again reaches the Dashboard. |
+| Relaunch without the seed argument | pass | Same test: after terminate and relaunch with only the test-store UUID, See all shows the same three sections, totals and 4 rows. |
+| Empty state | pass | `testEmptyHistoryShowsEmptyState`: "No purchases yet." and "Purchases you save appear here, newest first." shown, 0 rows; Back returns to the Dashboard at $0.00. |
+| Dashboard row opens the detail | pass | `testDashboardRowOpensDetailAndBackReturns`: 12.34 Test cafe saved; the row is scrolled above the Add purchase bar and tapped; detail shows $12.34, Test cafe, "Category, Other", "Type, Planned" and no Notes section; Back; today $12.34. |
+| Shortcut from History pops to the Dashboard | pass | `testShortcutFromHistoryReturnsToDashboardAndOpensQuickEntry` (`-run-log-purchase-on-activate`): from History, leaving and returning opens Quick Entry; after Cancel the Add purchase button is hittable, no "History" navigation bar exists, See all is visible and today is $0.00. |
+| Accessibility sizes and dark mode | pass | `testDarkAccessibilityHistoryRemainsReadable` (dark, AccessibilityXXXL): headers and totals exist; the last row (Bus fare) becomes hittable after scrolling; its detail shows $2.75 and Bus fare. Screenshots attached. |
+| Release simulator build | pass | `BUILD SUCCEEDED`, exit 0, 0 warnings. |
+| Seed hook absent from Release | pass | `strings` on the Release `SPEND` binary: 0 matches for `-seed-history-fixture` and for the 6 earlier hook arguments; the seed-only text "Weekly grocer" also 0. The Debug code library `SPEND.debug.dylib` (Xcode puts Debug code there, not in the `SPEND` stub) has 1 of each, so the search can find them. Control: "No purchases yet." and "Recent purchases" are present in Release. |
+| Project regeneration byte-stable | pass | XcodeGen 2.46.0 run twice on the final spec: identical `project.pbxproj` and scheme SHA-256; the project diff only adds the 6 new Swift files. |
+| Normal journals untouched | pass | SHA-256 of the 6 normal-journal files (store, WAL, SHM on both simulators) equal before and after each full round. |
+| Calm, readable screens (visual self-review) | pass after one fix | Light History and detail on Pro and SE: three cards, one per day, totals in the headers, amounts trailing, chevrons, no clipping. Empty state centered. Dashboard dark: See all beside "Recent purchases", the row with the amount trailing. Dark AccessibilityXXXL on Pro and SE first showed the merchant truncated ("Festival ti…"); after the fix below it wraps ("Festival" / "ticket") on both, and the default-size screens are unchanged. The header's day total renders in the header's secondary color, not primary. |
+| Security self-review | pass | Diff read: no networking, logging, analytics, packages, entitlements or secrets. History and the detail read through the existing container and context and render stored values as text. The only new write path is the DEBUG seed, gated on `#if DEBUG`, a valid test-store UUID and the argument, writing only an empty test store through `PurchaseWriter`. Screenshots hold synthetic data and live outside the repository. |
+| Independent Check | not run here | Needs the fresh chat below. Pending workflow gate, not a product failure. |
+| Dashboard row at accessibility sizes, iOS 17 to 25, spoken VoiceOver, thousands of rows | not checked | The existing Dashboard accessibility test does not scroll to the row, so the shared row on the Dashboard card was not seen at that size; only iOS 26.5 and 27 runtimes exist; no VoiceOver speech; grouping runs in the view body. |
+
+### Test-first and sensitivity evidence
+
+- `baseline-test.log`: `SummaryTests/testEmptyJournalHasZeroTotals` passed on
+  the Pro before any new test was written.
+- `red-daysections-and-history.log`: `DaySections.group` was a stub returning
+  one placeholder section (`.distantPast`, total -1, no items). All 7 unit tests
+  failed on assertions, for example `("[-1]") is not equal to ("[6000, 3660,
+  275]")` and `XCTAssertThrowsError failed: did not throw an error`. The seeded
+  UI test failed at "The Dashboard should offer See all".
+- `green-daysections-red-pop.log`: the 7 unit tests passed on the first real
+  implementation. Of the 5 UI tests, the dark accessibility and empty-state
+  tests passed; the seeded and Dashboard-row tests reached the detail and
+  failed only at the Category row label, which the List reads as one element
+  ("Category, Groceries" versus the expected "Groceries"); the shortcut test
+  failed at "Quick Entry should close onto the Dashboard" because the one-line
+  pop to root did not exist yet (Cancel landed back on History).
+- `green-pop-and-detail.log`: after adding `path = NavigationPath()` and
+  changing the two expectations to the combined labels "Category, Groceries"
+  and "Type, Planned" (a change to the tests, not the view: the row still shows
+  the value and the label reads better for VoiceOver), the 3 tests passed.
+- Visual fix round: the SE dark accessibility screenshot showed "Festival ti…".
+  Try 1 replaced `AnyLayout` with plain stacks: still truncated
+  (`wrapfix-se` bundle). Try 2 kept the plain stacks and gave both sides of the
+  row `fixedSize(horizontal: false, vertical: true)`: the merchant wraps
+  (`wrapfix2-se` bundle). Both full suites, the Release build and the strings
+  check were rerun on this final source (round 2 logs); round 1 logs are kept
+  with a `-round1` suffix.
+
+Expected values come from the plan: the seed fixture and the H1 acceptance
+check (three headers, $60.00, $36.60, $2.75, four rows, $32.10, Weekly grocer,
+Groceries, Planned, Jan 15, 2026 at 6:40 PM, "Weekly shop", $0.00), the Agreed
+behavior table (empty-state copy, pop to root, Back) and the slice 1 acceptance
+check (12.34 Test cafe). Day keys in the New York test come from the time zone's
+offsets (UTC-5 before, UTC-4 after the change).
+
+### Reproduction and artifacts
+
+```sh
+xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=6392B603-3453-49E8-9124-17FBBAC89C3D' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+```sh
+xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=45D6AC76-2BBA-490E-9A09-E35E2419A1F2' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+```sh
+xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+```
+
+Scratch: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-transaction-history-h1/`
+(`run-selfcheck.sh` runs the two suites, the Release build, the strings check
+and the journal hashes; `acceptance-pro` and `acceptance-se` logs and result
+bundles, `release-build.log`, `strings-check.txt`, `tested-source-sha256.txt`,
+`normal-journal-before.txt` and `-after.txt`, `project-run1.txt` and
+`project-run2.txt`, the red and green logs named above, `wrapfix-se` and
+`wrapfix2-se` bundles, `PurchaseRow.before-wrap-fix.swift`). Deliverables:
+`/Users/aympulse/aym/agents/outputs/spend/transaction-history/h1/`: named
+screenshots from the final (round 2) runs on Pro and SE (History light, both
+details, empty state, dark accessibility before and after scrolling, Quick Entry
+after the shortcut from History, Dashboard light and dark with the shared row and
+See all), the round 1 `history-dark-accessibility-before-fix-pro.png` and
+`-se.png` that show the truncation, `strings-check.txt`,
+`tested-source-sha256.txt`, `project-run2.txt` and `normal-journal-isolation.txt`.
+
+### Changed files
+
+- New `ios/SPEND/Services/DaySections.swift`: `DatedAmount`, `DaySection`,
+  `DaySections.group(_:calendar:)`.
+- New `ios/SPEND/Features/History/HistoryView.swift` (`HistoryDestination`,
+  `HistoryView`), `PurchaseDetailView.swift`, `PurchaseRow.swift` (`AmountLine`,
+  `PurchaseRow`).
+- `ios/SPEND/Features/Dashboard/DashboardView.swift`: `NavigationStack(path:)`,
+  two value destinations, See all, rows as links with the shared row, pop to
+  root in the shortcut handler.
+- `ios/SPEND/App/AppConfiguration.swift`: the DEBUG seed hook, called from the
+  store loader.
+- New `ios/SPENDTests/DaySectionsTests.swift` (7 tests) and
+  `ios/SPENDUITests/HistoryUITests.swift` (5 tests). Existing tests unchanged.
+- `ios/SPEND.xcodeproj/project.pbxproj`: regenerated, 6 files added.
+- `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` (014), `docs/ROADMAP.md`
+  ("Transaction history" ticked; "History category filter and search" added),
+  `README.md` status, `docs/plans/transaction-history.md` (committed; status
+  line now approved).
+
+### Deviations, follow-ups and untested
+
+- The detail's Category and Type rows read as one accessibility element each
+  ("Category, Groceries"); the tests assert that combined label.
+- `DaySections` has its own private overflow-checked `add` instead of sharing
+  `SpendingSummary`'s private one, so `SpendingSummary.swift` (not in the plan's
+  surfaces) stays untouched.
+- Dashboard cards are links without a chevron (links in a scroll view draw
+  none); History rows show the system chevron. Consider a chevron on the cards
+  if tapping them proves hard to discover.
+- The day total in the section header is secondary gray like the date; the
+  plan did not fix its color.
+- The Dashboard's own `totalRow` still uses `AnyLayout`; its titles are short
+  and it is outside this slice.
+- Not checked: the Dashboard card at accessibility sizes, iOS 17 to 25, spoken
+  VoiceOver, scrolling with thousands of purchases, and merchant truncation is
+  not machine-checked (the row is one combined element, so the UI test cannot
+  measure the merchant's lines).
+
+### Independent Check handoff
+
+Check slice H1 in /Users/aympulse/aym/projects/spend-app/.claude/worktrees/transaction-history
+(branch transaction-history) against docs/plans/transaction-history.md with
+check-this, slice check; treat docs/agents/build.md as claims to verify, not
+evidence. Report only, except your own checks.md rows. The latest code commit
+is 4c8cdb0; the records commit follows it.

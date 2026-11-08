@@ -53,10 +53,17 @@ the independent Check at commit 5732867 (`docs/agents/checks.md`). The Action
 Button steps were observed by the owner on an iPhone 18 Pro (iOS 27.2), not
 reproduced by the checker.
 
+Branch `transaction-history` (slice H1, built 2026-11-07, awaiting the
+independent Check) adds History: "See all" beside the Dashboard's recent
+purchases opens every saved purchase, newest first, in one section per day
+with the day's total, and tapping any row on the Dashboard or in History opens
+a read-only detail of every saved field. See `docs/plans/transaction-history.md`.
+
 This version uses USD, positive purchase amounts, and visible Other / Planned
-defaults. There are no third-party app dependencies. History/edit/delete, CSV
-export, and weekly reflection remain later work. See `CHANGELOG.md` and
-`docs/releases/0.1.0.md` for what shipped and its known limits.
+defaults. There are no third-party app dependencies. Edit/delete, category
+filter and search, CSV export, and weekly reflection remain later work. See
+`CHANGELOG.md` and `docs/releases/0.1.0.md` for what shipped and its known
+limits.
 
 ## Open and Run
 

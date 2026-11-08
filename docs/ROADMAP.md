@@ -19,8 +19,9 @@ physical iPhone" were checked on a device (owner-observed, iPhone 18 Pro, iOS
 - [x] SwiftData persistence
 - [x] Quick Entry
 - [x] Dashboard
-- [ ] Transaction history
+- [x] Transaction history
 - [ ] Edit and delete
+- [ ] History category filter and search
 - [x] Spending calculations
 - [x] Automated tests
 

@@ -163,3 +163,38 @@ app runs. iOS 17 to 25 remain unchecked.
 
 Reference: the iOS 27.2 SDK's App Intents interface marks `openAppWhenRun`
 deprecated from iOS 26 with "Please provide 'supportedModes' instead".
+
+## 014 — Read-Only History in Day Sections
+
+Decision: Add a History screen, reached from "See all" beside the Dashboard's
+"Recent purchases", that lists every saved purchase newest first in one inset
+grouped section per calendar day of the device calendar, with the day's total
+in the header, and a read-only detail screen reached from any History or
+Dashboard row. Grouping is a pure function (`DaySections`) with an explicit
+calendar and the same overflow and non-positive-amount errors as the Dashboard
+totals; an error shows a message instead of a partial list. The Dashboard's
+navigation stack is value-based so the "Log a purchase" shortcut pops History
+or a detail before opening Quick Entry. The Dashboard's recent rows adopt the
+shared row layout with the amount at the trailing edge. A DEBUG-only launch
+argument seeds four fixed-date purchases into an empty test store for UI tests.
+Headers show the weekday and full date ("Thu, Jan 15, 2026"), the screen title
+is "History" and the detail title is "Purchase". Edit, delete, category filter,
+search, month summaries, charts, paging and CSV stay later. The owner approved
+`docs/plans/transaction-history.md` on 2026-11-07 by asking to build slice H1,
+which accepted the shared-row change and these defaults.
+
+Reason: "Feel every dollar" needs a place to see every dollar, and the
+Dashboard's five recent rows are not it. Grouping by the device calendar keeps
+History consistent with the daily totals (010), and reusing the Dashboard's
+error cases keeps money exact (007). Reading through the same container adds no
+storage, copy, network or logging, so the journal's protection (011) and the
+single foreground writer (009) are unchanged. Popping to the Dashboard first
+keeps the shortcut's "Purchase saved." confirmation (012, 013) where the owner
+expects it. The detail stays read-only because edit and delete must first
+reconcile the legacy recovery copy (011, ROADMAP).
+
+Limits: future-dated purchases appear in History under their own day while the
+Dashboard totals still exclude them. Relative headers ("Today", "Yesterday")
+were deferred until the owner has used History. A deleted purchase on an open
+detail screen is the edit and delete slice's problem. Thousands of purchases
+would need a sectioned fetch instead of grouping in the view body.

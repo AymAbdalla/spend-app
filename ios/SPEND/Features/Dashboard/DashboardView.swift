@@ -8,13 +8,14 @@ struct DashboardView: View {
     @Query(sort: \Purchase.date, order: .reverse) private var purchases: [Purchase]
     @State private var showingEntry = false
     @State private var saved = false
+    @State private var path = NavigationPath()
     @State private var now = Date()
     private let clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     let commit: (ModelContext) throws -> Void
     let entryRequest: QuickEntryRequest
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("Feel every dollar.")
@@ -34,6 +35,8 @@ struct DashboardView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .navigationTitle("SPEND.")
+            .navigationDestination(for: HistoryDestination.self) { _ in HistoryView() }
+            .navigationDestination(for: Purchase.self) { PurchaseDetailView(purchase: $0) }
             .safeAreaInset(edge: .bottom) {
                 Button {
                     openEntry()
@@ -73,10 +76,12 @@ struct DashboardView: View {
         showingEntry = true
     }
 
-    /// The "Log a purchase" shortcut opens Quick Entry like Add purchase. If the
-    /// sheet is already open, it stays as it is, which keeps a typed draft.
+    /// The "Log a purchase" shortcut opens Quick Entry like Add purchase. It first
+    /// pops History or a detail, so "Purchase saved." lands on the Dashboard. If
+    /// the sheet is already open, it stays as it is, which keeps a typed draft.
     private func openEntryForShortcut() {
         entryRequest.markHandled()
+        path = NavigationPath()
         if !showingEntry { openEntry() }
     }
 
@@ -136,27 +141,29 @@ struct DashboardView: View {
         }
     }
 
+    /// The five newest purchases; each opens its detail, and See all opens History.
     private var recentPurchases: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Recent purchases").font(.headline)
+            HStack(alignment: .firstTextBaseline) {
+                Text("Recent purchases").font(.headline)
+                Spacer(minLength: 8)
+                NavigationLink("See all", value: HistoryDestination())
+                    .font(.subheadline.weight(.medium))
+                    .accessibilityIdentifier("seeAllPurchases")
+            }
             if purchases.isEmpty {
                 Text("Start with one purchase.").font(.title3.weight(.medium))
                 Text("Record what you spent, then see where it goes.")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(Array(purchases.prefix(5))) { purchase in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(purchase.merchant).font(.headline)
-                        Text(Money.format(purchase.amountInCents)).monospacedDigit()
-                        Text("\(purchase.category.title) · \(purchase.spendingType.title)")
-                            .font(.subheadline).foregroundStyle(.secondary)
-                        Text(purchase.date.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption).foregroundStyle(.secondary)
+                    NavigationLink(value: purchase) {
+                        PurchaseRow(purchase: purchase, dateStyle: .dateAndTime)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
-                    .accessibilityElement(children: .combine)
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("purchaseRow")
                 }
             }
