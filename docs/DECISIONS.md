@@ -198,3 +198,62 @@ Dashboard totals still exclude them. Relative headers ("Today", "Yesterday")
 were deferred until the owner has used History. A deleted purchase on an open
 detail screen is the edit and delete slice's problem. Thousands of purchases
 would need a sectioned fetch instead of grouping in the view body.
+
+## 015 — One Accent, a Layered Icon, Dashboard Cards and a Written Design System
+
+Decision: SPEND. gets its own face without changing what it does. One brand
+accent, deep teal (#0B7A75 in light mode, #0E948E in dark mode), is the only
+color that carries meaning, and it means "you can tap this"; Planned and
+Impulse stay words. The app icon is concept B, an original S. monogram drawn
+from two elliptical arcs plus a dot, shipped as an Icon Composer package
+(`ios/SPEND/AppIcon.icon`) on an automatic gradient from the accent, with no
+flat `AppIcon` set in the asset catalog; Xcode flattens it for iOS 17 to 25.
+The Shortcuts tile color is teal and its symbol stays `plus.circle` (013).
+Every Dashboard section is a card with one surface, radius 20 and padding 20,
+in the order tagline, "Purchase saved.", Today, This week and This month,
+Recent purchases with See all, This month by category, This month by
+intention, the USD footnote; the five recent rows share one card with
+dividers and a chevron. The History day total is in primary color. The rules
+are written down in `docs/DESIGN.md`, with the tokens in
+`Features/Shared/SpendCard.swift`. Apple's accessibility audit runs in the UI
+tests on every screen at the xSmall, large and AX5 text sizes in light and
+dark, and every excluded finding is named in the test with its reason.
+
+The owner approved `docs/plans/look-and-feel.md` on 2026-11-08 by asking to
+build it; the plan's recommended concept B and accent A were confirmed with
+the go after LF1. At the LF2 stop the owner accepted that on the small phone
+(iPhone SE size) the first recent purchase needs one swipe at the default
+text size, because the unchanged Today and period cards leave 70 points too
+little room; the alternatives were moving Recent purchases above the period
+card or trimming the tagline and the Today date line. On the iPhone 17 Pro
+and 18 Pro the row shows without scrolling.
+
+Reason: the icon and the overlap were the two known limits of 0.1.0, and the
+H1 check had asked for a primary-colored History total and chevrons on the
+Dashboard rows. A single accent with 4.5:1 or better contrast in light mode
+keeps controls recognizable without giving money a color (BRAND "Subtle
+accent colors", UX "Accessible controls"). The layered icon is Apple's
+current format and renders as glass on iOS 26; a flat set beside it has
+reported conflicts, and no iOS 17 to 25 runtime is installed to verify a
+fallback either way, so the layered file ships alone (Apple's known issue
+152258860 is noted for any TestFlight build). Cards on `SpendCard` mean a
+later screen changes one value, not five views. The small-phone swipe was
+preferred over changing the agreed order or the Today card.
+
+Limits: the dark accent was first #0D8D87, which put See all on a dark card at
+4.19:1; the audit rated that "nearly passed", so the dark variant was raised to
+#0E948E (4.57:1 on the card, 5.65:1 on black), which leaves the white label on
+the dark accent button at 3.72:1, large text where 3.0 is the minimum and close
+to iOS's own blue. The audit's named exclusions are: Foundation-formatted amounts flagged as "not
+human-readable" (VoiceOver speaks them as dollars and cents, and the UI tests
+read that text); the app's name "SPEND." as a title; system secondaryLabel
+text rated "nearly passed" (Apple's palette, 3.4:1 on white, which Increase
+Contrast darkens); text under a translucent bar or cut by the screen edge,
+where the audit samples a background the text does not sit on and names no
+element, and the Quick Entry Date label in dark mode, which the screenshots
+measure at 13.9:1; the Dynamic Type heuristic on system toolbar buttons and
+on labels that visibly scale in the AX5 screenshots; and the single-line
+text fields it predicts may clip. iOS 17 to 25 rendering, spoken VoiceOver
+on a
+phone, the Action Button icon and the Shortcuts tile color remain
+owner-observed or unchecked.

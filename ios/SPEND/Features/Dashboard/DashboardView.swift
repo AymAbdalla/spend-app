@@ -172,9 +172,14 @@ struct DashboardView: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("Recent purchases").font(.headline)
                 Spacer(minLength: 8)
-                NavigationLink("See all", value: HistoryDestination())
-                    .font(.subheadline.weight(.medium))
-                    .accessibilityIdentifier("seeAllPurchases")
+                // The label is small text, so the link itself is given a 44-point hit area.
+                NavigationLink(value: HistoryDestination()) {
+                    Text("See all")
+                        .font(.subheadline.weight(.medium))
+                        .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("seeAllPurchases")
             }
             if recent.isEmpty {
                 Text("Start with one purchase.").font(.title3.weight(.medium))

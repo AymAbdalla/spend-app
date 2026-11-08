@@ -53,11 +53,21 @@ the independent Check at commit 5732867 (`docs/agents/checks.md`). The Action
 Button steps were observed by the owner on an iPhone 18 Pro (iOS 27.2), not
 reproduced by the checker.
 
-Branch `transaction-history` (slice H1, built 2026-11-07, awaiting the
-independent Check) adds History: "See all" beside the Dashboard's recent
+History (slice H1) passed the independent Check at 4c8cdb0 and was merged into
+`main` at 4fef33f on 2026-11-07: "See all" beside the Dashboard's recent
 purchases opens every saved purchase, newest first, in one section per day
 with the day's total, and tapping any row on the Dashboard or in History opens
 a read-only detail of every saved field. See `docs/plans/transaction-history.md`.
+
+Branch `look-and-feel` (slices LF1 to LF3, built 2026-11-08, awaiting the
+independent Check) gives SPEND. its face: an S. monogram app icon as an Icon
+Composer package (glass on iOS 26, flattened by Xcode for iOS 17 to 25), one
+deep-teal accent on every tinted control, a Dashboard of uniform cards with the
+recent purchases third so the purchase you just saved shows without scrolling
+on the iPhone 17 Pro and 18 Pro (one swipe on an iPhone SE), the History day
+total in primary color, and the design system written down in
+`docs/DESIGN.md`. Apple's accessibility audit runs in the UI tests on every
+screen at three text sizes in light and dark. See `docs/plans/look-and-feel.md`.
 
 This version uses USD, positive purchase amounts, and visible Other / Planned
 defaults. There are no third-party app dependencies. Edit/delete, category

@@ -1,10 +1,12 @@
 import XCTest
 
-/// The Dashboard shows the purchase you just saved without scrolling, and its
-/// sections come in the agreed order: tagline, "Purchase saved.", Today, This
-/// week and This month, Recent purchases with See all, This month by category,
-/// This month by intention, the USD footnote. Runs at the default text size on
-/// iPhone 18 Pro, iPhone 17 Pro and the small phone.
+/// The Dashboard shows the purchase you just saved without scrolling on the
+/// iPhone 18 Pro and 17 Pro, and after one swipe on the small phone (iPhone SE
+/// size), where the Today and period cards leave no room for a row; the owner
+/// accepted that on 2026-11-08 (DECISIONS 015). The sections come in the agreed
+/// order: tagline, "Purchase saved.", Today, This week and This month, Recent
+/// purchases with See all, This month by category, This month by intention,
+/// the USD footnote. Runs at the default text size on all three simulators.
 final class DashboardLayoutUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
@@ -46,12 +48,21 @@ final class DashboardLayoutUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: "purchaseRow").firstMatch
     }
 
-    /// No swipe happens before these checks: the row must already be on screen.
+    /// Phones shorter than 800 points (the small phone is 667) may need one swipe.
+    private func isSmallPhone(_ app: XCUIApplication) -> Bool { app.frame.height < 800 }
+
+    /// On the Pro phones no swipe happens before these checks. On the small phone
+    /// one swipe is allowed, and the row must then be fully on screen above the bar.
     private func assertFirstRowVisibleWithoutScrolling(_ app: XCUIApplication, _ mode: String) {
         let row = row(app)
         XCTAssertTrue(row.waitForExistence(timeout: 5), "\(mode): the saved purchase should be listed")
         let button = app.buttons["addPurchase"]
-        XCTAssertTrue(row.isHittable, "\(mode): the first recent purchase must be tappable without scrolling")
+        if isSmallPhone(app), row.frame.maxY > button.frame.minY - 8 {
+            app.swipeUp()
+            XCTAssertGreaterThanOrEqual(row.frame.minY, app.frame.minY,
+                                        "\(mode): after one swipe the row must not have left the top of the screen (row starts at \(row.frame.minY))")
+        }
+        XCTAssertTrue(row.isHittable, "\(mode): the first recent purchase must be tappable")
         XCTAssertLessThanOrEqual(row.frame.maxY, button.frame.minY - 8,
                                  "\(mode): the whole row must end at least 8 points above the Add purchase button (row ends at \(row.frame.maxY), button starts at \(button.frame.minY))")
     }

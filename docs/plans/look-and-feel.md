@@ -1,9 +1,10 @@
 # Look-and-feel plan
 
-Status: approved for Build on 2026-11-08, when the owner asked to build LF1 to
-LF3 with stops after each slice. The owner did not name the icon concept or the
-accent, so Build uses the recommended concept B and accent A; both stay open for
-the owner to change at the LF1 stop. Source of agreement: Clarify on
+Status: built (LF1 to LF3, 2026-11-08), awaiting the independent Check. Approved
+for Build on 2026-11-08, when the owner asked to build LF1 to LF3 with stops
+after each slice; Build used the recommended concept B and accent A, which the
+owner confirmed with the LF1 go. At the LF2 stop the owner accepted one swipe on
+the small phone (option 1 below). Source of agreement: Clarify on
 2026-11-07, where the owner chose option 1 to each of four questions (scope,
 icon format, accent, Dashboard order); `docs/BRAND.md` Visual Direction;
 `docs/UX.md` principles; `docs/DECISIONS.md` 002, 009, 012, 013 and 014;
@@ -48,7 +49,7 @@ shared card style, so the same data appears in a different order.
 | Planned and Impulse | Stay text only. No color carries meaning anywhere in the app. |
 | Dashboard order | Tagline; "Purchase saved." when shown; Today card; This week and This month card; Recent purchases with See all and up to five rows; This month by category card; This month by intention card; the USD footnote. |
 | Dashboard surfaces | Every section is a card with the same surface color, corner radius and padding. Purchase rows show a trailing chevron because they open the detail. |
-| Right after saving, default text size | On iPhone 18 Pro, iPhone 17 Pro and the small phone, the first recent purchase is fully visible above the Add purchase bar without scrolling. |
+| Right after saving, default text size | On iPhone 18 Pro and iPhone 17 Pro, the first recent purchase is fully visible above the Add purchase bar without scrolling. On the small phone (iPhone SE size) it is fully visible after one swipe: Build measured 70 points too little room under the unchanged Today and period cards, and the owner chose this over changing the order or the cards on 2026-11-08. |
 | Accessibility text sizes | Everything remains reachable by scrolling, as today. Rows stack their amount under the merchant, as today. |
 | History day headers | The day total renders in primary text color; the date stays secondary. |
 | Quick Entry, History, Detail | Use the same surfaces and type roles as the design system. Copy and flow are unchanged, except an accessibility label the audit requires. |
@@ -108,6 +109,11 @@ VoiceOver on the phone (owner-observed, separate); App Store assets.
   "consider" notes, 2026-11-07.
 - Shortcut symbol stays `plus.circle`: DECISIONS 013.
 - No motion, Reduce Motion respected: `docs/UX.md` UX Principles.
+- Concept B and accent A: the plan's recommendation, confirmed by the owner's
+  go after LF1 on 2026-11-08.
+- One swipe on the small phone: the owner's "go 1" at the LF2 stop on
+  2026-11-08, choosing it over moving Recent purchases above the period card
+  (option 2) or trimming the tagline and the Today date line (option 3).
 
 ### Open items
 
@@ -185,6 +191,11 @@ has every pair). Recommended A.
 | B Clay | #B0522E | #CA5F35 | `.tangerine` | Warm and human; reads as a warning color in a finance context. |
 | C Indigo | #4A4FC4 | #7276D1 | `.grape` | Modern; close to the system blue and common in fintech. |
 
+Build note, 2026-11-08: the accessibility audit (LF3) rated See all on a dark
+card "nearly passed" at 4.19 with the dark variant #0D8D87, so the dark variant
+shipped as #0E948E (4.57 on the dark card, 5.65 on black, 3.72 under a white
+label), as this plan's risk list allowed.
+
 Every light variant gives at least 4.60 against the light background, 5.13
 against white cards and 5.13 under a white button label. Every dark variant
 gives at least 5.18 against black and 4.19 against dark cards, and 4.02 under
@@ -224,10 +235,11 @@ paragraph then points to it.
 - A `SpendCard` view modifier in `ios/SPEND/Features/Shared/` (or beside
   `PurchaseRow`) applies the surface, radius and padding once; the Dashboard,
   the detail's hero section and any future card use it.
-- The Add purchase bar is unchanged. The reorder alone makes the first row
-  visible: on the iPhone 17 Pro the first row ends about 300 points above the
-  bar at default size, and about 80 points above it on the small phone, by
-  measuring the current screenshots.
+- The Add purchase bar is unchanged. Measured in Build after the reorder: on
+  the iPhone 17 Pro and 18 Pro the first row ends 55 points above the button
+  at default size; on the small phone it ends 70 points below the button, so
+  one swipe is needed there. (This plan first estimated 80 points of room on
+  the small phone; that estimate was wrong.)
 
 ### History, Detail, Quick Entry
 
@@ -260,7 +272,7 @@ Slice ids `LF1`, `LF2`, `LF3` in `docs/agents/build.md` and `checks.md`.
 | # | Slice | Surfaces | Change | Acceptance check | Blocked by |
 | --- | --- | --- | --- | --- | --- |
 | LF1 | Brand assets | New `ios/SPEND/Assets.xcassets` (`AccentColor.colorset` only), new `ios/SPEND/AppIcon.icon`, new `design/assets/icon/*.svg`, `ios/project.yml` (accent setting, icon resource entry), regenerated `SPEND.xcodeproj`, `ios/SPEND/Intents/SpendShortcuts.swift` (tile color), `docs/agents/build.md`, `status.md` | Add the accent color and the layered icon, wire both into the project, set the Shortcuts tile color. | Debug build installed on the iPhone 18 Pro simulator: a home-screen screenshot shows the SPEND. icon; the built app's `Assets.car` lists `AccentColor` and its Info.plist names the icon; light and dark Dashboard screenshots show Add purchase and See all in the chosen accent; the Release simulator build succeeds; the 49 existing tests pass on both iOS 26.5 simulators; XcodeGen regeneration is byte-identical. Settings → Action Button showing the icon and the tile color in Shortcuts are owner-observed on the phone later, not gates. | Plan approval with the concept and accent picks; Icon Composer steps by the owner or the hand-written fallback. |
-| LF2 | Design system and Dashboard | `DashboardView.swift`, new `SpendCard` modifier, `HistoryView.swift` (header total), `PurchaseDetailView.swift` (tokens), new `DashboardLayoutUITests.swift`, existing UI tests where the element tree changes, new `docs/DESIGN.md`, `docs/ARCHITECTURE.md` pointer, regenerated project, records | Reorder the Dashboard, make every section a card, add chevrons, fix the History header total, write DESIGN.md from the shipped values. | The new UI test passes on iPhone 18 Pro, iPhone 17 Pro and the small phone: after saving, with no swipe, the first recent purchase is hittable and ends at least 8 points above the Add purchase bar; light and dark screenshots on all three show the agreed order and uniform cards, and a History screenshot shows the day total in primary color; all existing tests pass; `docs/DESIGN.md` exists and names the hex values, type roles and tokens that the code uses. | LF1 (the accent must exist for the color roles and screenshots). |
+| LF2 | Design system and Dashboard | `DashboardView.swift`, new `SpendCard` modifier, `HistoryView.swift` (header total), `PurchaseDetailView.swift` (tokens), new `DashboardLayoutUITests.swift`, existing UI tests where the element tree changes, new `docs/DESIGN.md`, `docs/ARCHITECTURE.md` pointer, regenerated project, records | Reorder the Dashboard, make every section a card, add chevrons, fix the History header total, write DESIGN.md from the shipped values. | The new UI test passes on iPhone 18 Pro, iPhone 17 Pro and the small phone: after saving, with no swipe on the two Pro phones and after one swipe on the small phone (owner's decision of 2026-11-08), the first recent purchase is hittable and ends at least 8 points above the Add purchase bar; light and dark screenshots on all three show the agreed order and uniform cards, and a History screenshot shows the day total in primary color; all existing tests pass; `docs/DESIGN.md` exists and names the hex values, type roles and tokens that the code uses. | LF1 (the accent must exist for the color roles and screenshots). |
 | LF3 | Accessibility pass and documentation | New `AccessibilityAuditUITests.swift`, fixes it requires on any of the four screens, `docs/DECISIONS.md` 015, `docs/ROADMAP.md` notes, `README.md` status (including the stale "awaiting the independent Check" History line), this plan's status line, records | Run the audit on every screen and fix what it finds within scope; capture Dynamic Type and dark screenshots; update the documents. | The audit tests pass on both iOS 26.5 simulators with every exclusion named and explained; screenshots of all four screens at xSmall, large and AX5 sizes in light and dark on both simulators show no clipped or hidden content at default size and everything reachable by scrolling at AX5; the full suites pass with 0 skipped; the Release build passes; documentation updated as listed. | LF2 (the audit runs on the final screens). |
 
 Three slices because each ends in something different to observe: an icon and

@@ -38,7 +38,9 @@ reimported from those copies.
 - [x] Action Button setup
 - [x] Test on physical iPhone
 - [ ] CSV export
-- [ ] Accessibility review
+- [x] Accessibility review (Apple's automated audit in the UI tests at three
+      text sizes in light and dark; spoken VoiceOver on a phone still open)
+- [x] App icon, brand accent and Dashboard cards (`docs/DESIGN.md`)
 
 ## Phase 3 — Reflection
 

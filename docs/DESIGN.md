@@ -18,28 +18,32 @@ live in `UX.md`.
 
 | Role | Light | Dark | Where it is set |
 | --- | --- | --- | --- |
-| Accent (tinted controls: Add purchase, See all, Done, pickers, Save, Cancel, Try again) | #0B7A75 | #0D8D87 | `ios/SPEND/Assets.xcassets/AccentColor.colorset`, applied by `ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME` in `ios/project.yml` |
+| Accent (tinted controls: Add purchase, See all, Done, pickers, Save, Cancel, Try again) | #0B7A75 | #0E948E | `ios/SPEND/Assets.xcassets/AccentColor.colorset`, applied by `ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME` in `ios/project.yml` |
 | Page | `systemGroupedBackground` (#F2F2F7) | `systemGroupedBackground` (#000000) | `SpendDesign.pageBackground`; Lists use it by default |
 | Card | `secondarySystemGroupedBackground` (#FFFFFF) | `secondarySystemGroupedBackground` (#1C1C1E) | `SpendDesign.cardSurface`; inset grouped List rows use it by default |
 | Primary text | `Color.primary` | `Color.primary` | Default text color; the History day total names it explicitly |
 | Secondary text | `.secondary` | `.secondary` | Labels, taglines, dates, supporting lines |
 | Tertiary | `.tertiary` | `.tertiary` | The chevron on Dashboard rows |
 
-Accent contrast, WCAG 2.x, computed 2026-11-07 (the deep-teal row of
-`accent-contrast.md`, kept with the design outputs outside the repository):
+Accent contrast, WCAG 2.x. The light values are from the deep-teal row of
+`accent-contrast.md` (2026-11-07, kept with the design outputs outside the
+repository); the dark variant was raised from #0D8D87 to #0E948E on 2026-11-08
+after the accessibility audit rated See all on a dark card "nearly passed" at
+4.19:1, and its values were recomputed then:
 
 | Pair | Ratio |
 | --- | --- |
 | White label on the light accent (filled button) | 5.18 |
 | Light accent on the light page #F2F2F7 (See all) | 4.64 |
 | Light accent on a white card | 5.18 |
-| White label on the dark accent (filled button) | 4.06 |
-| Dark accent on the dark page #000000 (See all) | 5.18 |
-| Dark accent on a dark card #1C1C1E | 4.19 |
+| White label on the dark accent (filled button) | 3.72 |
+| Dark accent on the dark page #000000 (See all) | 5.65 |
+| Dark accent on a dark card #1C1C1E (See all) | 4.57 |
 
-Normal text targets 4.5. The two dark-mode pairs under 4.5 are above the 3.0
-large-text minimum and above the 3.65 that iOS's own blue gives under a white
-label. The accessibility audit (LF3) decides whether either needs a change.
+Normal text targets 4.5 and every text pair meets it. The white label on the
+dark accent button is large text (headline, semibold), where 3.0 is the
+minimum; it sits at 3.72, close to the 3.65 that iOS's own blue gives under a
+white label in dark mode.
 
 ## Typography roles
 
@@ -95,7 +99,8 @@ the detail's hero row takes `cardPadding`, so the amount sits like a card's.
   accessibility so the row's spoken label is unchanged.
 - **Total row** (`DashboardView.totalRow`): label in secondary, amount in
   row-amount style, stacked at accessibility sizes.
-- **Section header**: headline title, optional trailing link (See all).
+- **Section header**: headline title, optional trailing link (See all). The
+  link's text is small, so the link itself is given a 44-point hit area.
 - **Add purchase bar**: a prominent bordered, large button in a `.bar`
   safe-area inset at the bottom; the content scrolls under it.
 
@@ -122,10 +127,24 @@ motion, it checks `accessibilityReduceMotion` and offers a still version.
 - Every element a test needs has a stable identifier (`todayTotal`,
   `purchaseRow`, `addPurchase`, `seeAllPurchases`, `daySection.<yyyy-MM-dd>`).
 - A row reads as one element; decorative symbols are hidden.
-- Tap targets are at least 44 points tall (rows, the large Add purchase
-  button, toolbar buttons).
-- The XCUITest accessibility audit runs on every screen (LF3); any exclusion
-  is named in the test with its reason.
+- Tap targets are at least 44 points tall: rows, the See all link, the Quick
+  Entry text fields themselves (a 44-point frame that focuses the field on
+  tap, because the text line alone is shorter), the large Add purchase button
+  and the toolbar buttons.
+- Apple's accessibility audit (`performAccessibilityAudit`) runs in
+  `AccessibilityAuditUITests` on every screen at the xSmall, large and AX5
+  text sizes in light and dark, and attaches a screenshot of each. Each
+  excluded finding is named in the test with its reason: Foundation-formatted
+  amounts and the name "SPEND." flagged as "not human-readable" (VoiceOver
+  speaks both); system secondaryLabel text rated "nearly passed" (Apple's
+  palette, 3.4:1 on white, darkened by Increase Contrast); contrast sampled
+  under a translucent bar or at the screen edge (where the audit names no
+  element), and the Quick Entry Date label, which the dark screenshots
+  measure at 13.9:1; the Dynamic Type heuristic on system toolbar buttons and
+  on labels the AX5 screenshots show scaling; and the single-line text fields
+  it predicts may clip. An outright contrast failure on visible
+  text, a small hit area, a missing label or clipped text anywhere else fails
+  the test.
 
 ## Copy
 
