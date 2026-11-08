@@ -38,26 +38,25 @@ Intentional spending without shame.
 
 - ios/ — Native iOS application
 - docs/ — Product and engineering documentation
+- CHANGELOG.md — What each version contains; release notes in docs/releases/
 - design/ — Design assets and references
 - scripts/ — Development utilities
 
 ## Status
 
-First vertical slice built on `quick-entry-dashboard`:
-Quick Entry → local SwiftData → Dashboard. Build verification and independent
-Check are separate; see `docs/agents/` for the recorded state when available.
+Version 0.1.0 is on `main` (merged 2026-11-07): Quick Entry → local SwiftData →
+Dashboard, plus the "Log a purchase" App Shortcut that opens SPEND. straight into
+Quick Entry from the Shortcuts app, Spotlight, Siri ("Log a purchase in SPEND.")
+or Settings → Action Button → Shortcut. The shortcut only opens the app: nothing
+is saved until you tap Save. Slices 1, AB1 and AB2 and the security review passed
+the independent Check at commit 5732867 (`docs/agents/checks.md`). The Action
+Button steps were observed by the owner on an iPhone 18 Pro (iOS 27.2), not
+reproduced by the checker.
 
-This slice uses USD, positive purchase amounts, and visible Other / Planned
-defaults. There are no third-party app dependencies.
-
-The "Log a purchase" App Shortcut (slice AB1, on `action-button-shortcut`) opens
-SPEND. straight into Quick Entry. It only opens the app: nothing is saved until
-you tap Save. iOS lists it in the Shortcuts app, Spotlight, Siri ("Log a purchase
-in SPEND.") and Settings → Action Button → Shortcut. Simulator tests cover what
-happens once it runs. Slice AB2 ran it from the Action Button on an iPhone 18 Pro
-(iOS 27.2): Quick Entry opened, a test purchase saved and survived a force-quit
-and lock. Those phone results are owner-observed; the independent Check is still
-to come. History/edit/delete, CSV export, and weekly reflection remain later work.
+This version uses USD, positive purchase amounts, and visible Other / Planned
+defaults. There are no third-party app dependencies. History/edit/delete, CSV
+export, and weekly reflection remain later work. See `CHANGELOG.md` and
+`docs/releases/0.1.0.md` for what shipped and its known limits.
 
 ## Open and Run
 
