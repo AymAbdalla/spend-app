@@ -1,7 +1,8 @@
 # Quick Entry → SwiftData → Dashboard
 
-Status: approved by the owner with “go” on 2026-11-06; slice built and self-checked.
-Independent Check is pending; see `docs/agents/build.md` for evidence and limits.
+Status: approved by the owner with “go” on 2026-11-06; slice built, independently
+checked (pass at 5732867, `docs/agents/checks.md`) and merged into `main` on
+2026-11-07 as part of version 0.1.0. Build evidence and limits: `docs/agents/build.md`.
 
 ## Goal and source
 
