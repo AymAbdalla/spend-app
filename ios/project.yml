@@ -1,0 +1,57 @@
+name: SPEND
+options:
+  minimumXcodeGenVersion: 2.46.0
+  deploymentTarget:
+    iOS: "17.0"
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: YES
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  SPEND:
+    type: application
+    platform: iOS
+    sources: [SPEND]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aymanabdalla.spend
+        INFOPLIST_KEY_CFBundleDisplayName: SPEND.
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+  SPENDTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [SPENDTests]
+    dependencies:
+      - target: SPEND
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aymanabdalla.spend.tests
+  SPENDUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [SPENDUITests]
+    dependencies:
+      - target: SPEND
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aymanabdalla.spend.uitests
+schemes:
+  SPEND:
+    build:
+      targets:
+        SPEND: all
+    test:
+      gatherCoverageData: true
+      targets:
+        - SPENDTests
+        - SPENDUITests

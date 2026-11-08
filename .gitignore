@@ -9,3 +9,6 @@ DerivedData/
 .swiftpm/
 *.ipa
 *.dSYM/
+
+# Your signing team for installing on an iPhone (see ios/Config/Signing.xcconfig)
+ios/Config/Signing.local.xcconfig
