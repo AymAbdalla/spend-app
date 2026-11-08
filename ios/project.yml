@@ -18,10 +18,19 @@ targets:
   SPEND:
     type: application
     platform: iOS
-    sources: [SPEND]
+    sources:
+      # The Icon Composer package is one resource, not a folder of JSON and SVG
+      # files, so it is excluded from the folder scan and added as a single file.
+      - path: SPEND
+        excludes:
+          - AppIcon.icon
+      - path: SPEND/AppIcon.icon
+        type: file
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.aymanabdalla.spend
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_CFBundleDisplayName: SPEND.
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES

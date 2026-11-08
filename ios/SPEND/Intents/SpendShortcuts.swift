@@ -4,6 +4,10 @@ import AppIntents
 /// Shortcuts app, Spotlight, Siri and the Action Button setting without the
 /// owner building anything.
 struct SpendShortcuts: AppShortcutsProvider {
+    /// The system tile color nearest the brand accent (deep teal); the tile's
+    /// `plus.circle` symbol stays (DECISIONS 013).
+    static var shortcutTileColor: ShortcutTileColor { .teal }
+
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: LogPurchaseIntent(),
                     phrases: ["Log a purchase in \(.applicationName)"],
