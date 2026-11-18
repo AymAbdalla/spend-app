@@ -12,6 +12,9 @@ Written only by the builder's main agent, one row per slice. State is `built` or
 | AB1 | spend-core | action-button-shortcut | a6b2f551c72104372fbb44f6fb7d62c2b7df83cc | A UI test runs the real intent at launch (simulated trigger): Quick Entry appears with the amount field focused; typing 12.34 and Test cafe and tapping Save shows $12.34 today and one Test cafe row. Edge cases in the Verification table pass. The built app's App Intents metadata lists "Log a purchase" as an app-opening shortcut. All 30 existing tests still pass on iPhone 17 Pro and iPhone SE. | self-check: 37 of 37 tests passed on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5 (27 unit, 10 UI: the 30 existing plus 7 new), 0 skipped, 0 build warnings; Release simulator build passed; Release metadata lists LogPurchaseIntent "Log a purchase" with openAppWhenRun true and supportedModes 2; test-hook strings absent from Release; simulated trigger only; optional Shortcuts-app tap failed ("Couldn't find AppShortcutsProvider"), not a gate, and an owner-approved Release retry failed the same way, with the log showing iOS rejected the app for having no Team ID; evidence below | built | 2026-11-07 |
 | AB2 | spend-core | action-button-shortcut | 573286721f91475dd7bb0a79a36875be9b499ff1 | On the owner's iPhone 18 Pro: Settings → Action Button → Shortcut lists "Log a purchase"; tapping it in the Shortcuts app opens Quick Entry; pressing the button from the Home Screen opens Quick Entry; saving a clearly fake purchase (TEST, 1.00) shows it on the Dashboard; it is still there after force-quit, lock and unlock. `git grep` finds no team ID. Simulator suites still pass. | self-check: 37 of 37 tests on each of iPhone 17 Pro and iPhone SE 3rd gen, iOS 26.5, 0 skipped, 0 compiler warnings; Release build passed; the local file's team reaches the app and both test targets in Debug and Release and is absent without it; git ignores the file and the team ID has 0 matches in files or history; fresh clone builds for the simulator; phone steps 3 to 8 and 10 passed and step 9 was observed (owner-observed, iPhone 18 Pro, iOS 27.2, screenshots only because Mac screen recording is unsupported); merchant saved as "Test", as typed; evidence below | built | 2026-11-07 |
 | H1 | spend-core | transaction-history | 4c8cdb0436fae523d23b90ed875f83867edeeecf | On a seeded test store: Dashboard → See all shows History with three day sections in the order Jun 1, 2030; Jan 15, 2026; Jan 14, 2026, totals $60.00, $36.60 and $2.75, and four rows; tapping Weekly grocer shows $32.10, Weekly grocer, Groceries, Planned, Jan 15, 2026 at 6:40 PM and "Weekly shop"; Back returns to History; the Dashboard's today total stays $0.00. A relaunch without the seed argument shows the same sections. A fresh store shows the empty state. All 37 existing tests still pass on iPhone 17 Pro and SPEND Small Phone (iOS 26.5); the Release simulator build passes; the seed argument is absent from the Release binary. | self-check: 49 of 49 tests (34 unit, 15 UI; 7 unit and 5 UI new) passed on each of iPhone 17 Pro and SPEND Small Phone, iOS 26.5, 0 skipped, 0 warnings; Release simulator build passed; the seed argument and the 6 earlier hook arguments are absent from the Release binary and present once each in the Debug code library; normal journals unchanged; XcodeGen byte-stable; one visual defect (merchant truncated at accessibility text sizes) fixed before the final runs; evidence below | built | 2026-11-07 |
+| P1 | spend-core | portfolio-ready | 85655e6a59c431e58f340f4dd20ea4af19d0f46a | Every relative link and image path in README.md resolves to a tracked file (a script in the scratch folder lists each one with exists or missing: 0 missing). Each PNG's IHDR plus concatenated IDAT bytes hash the same as the owner's original, and its chunk list has no eXIf or iTXt. git grep on the branch finds no /Users/, no DEVELOPMENT_TEAM = followed by a value, and no email in README.md. Every number in the README matches its named source row. After git push -u origin portfolio-ready, the branch README on GitHub shows the four images (owner-visible while private; the checker confirms with gh api that the four image paths exist on the branch). | self-check: links_check.py on README.md at 85655e6 lists 19 links, 18 resolve and 1 missing (LICENSE, which P2 adds; 0 missing is expected at the branch tip after P2); png_strip.py copied the four screenshots from ~/aym/agents/outputs/spend/portfolio-ready/screenshots/ into docs/images/ dropping only eXIf and iTXt, and the SHA-256 of IHDR plus IDAT bytes is equal before and after for all four (dashboard 99ff6ae3, quick-entry 2797ec3b, dashboard-breakdown 56f70de2, dashboard-recent-purchases 2e62e790; chunk lists after: IHDR, sRGB or iCCP plus cICP, pHYs, IDAT, IEND); grep on README.md: /Users/ 0, DEVELOPMENT_TEAM with a value 0, email 0, Co-Authored 0, Generated 0; git diff main --stat -- ios/ is empty; README numbers read beside their sources: 49 tests (34 unit, 15 UI) and the Release build and hook strings from the checks.md H1 row at 4c8cdb0, 0.1.0 merged and tagged 2026-11-07 (git log v0.1.0), History merged 2026-11-07 at 4fef33f, look-and-feel one of three slices passed (LF2) plus security and LF1 and LF3 failed one finding each (that branch's checks.md, 2026-11-08), known limits from CHANGELOG 0.1.0; the GitHub branch view is not yet checked because the push happens at the end of Build (result goes in status.md). Scripts and the originals with their hashes: ~/aym/agents/outputs/spend/portfolio-ready/ and the session scratch folder. | built | 2026-11-18 |
+| P2 | spend-core | portfolio-ready | 47006a2d0b8d7fa5d2dcc30d5900bdd41cb2fa47 | git grep -c '/Users/' on the branch reports no tracked file. git diff main -- docs/agents/build.md changes only lines that contained the path, plus the new rows after the H1 row. python3 <check-this>/scripts/agents_gate.py check --base main lists exactly the slices this round added, refuses only for "no independent pass" and "no security pass" (expected before the Check), and reports no column, State or self-check problem. LICENSE equals the SPDX MIT text apart from the copyright line, which reads Copyright (c) 2026 Ayman Abdalla. | self-check: sed replaced the home folder prefix with ~/ in build.md at 47006a2: 21 lines removed, every one of them held the prefix, 21 lines added, the first table untouched (first changed hunk at line 49); status.md's single mention went when its line was rewritten in the P1 record commit 4918ceb; git grep for the username path on the tip after the plan wording commit that follows this row: 0 tracked files (the plan's own P2 row had quoted the username path, reworded to /Users/<username>/ with no decision changed); the bare string /Users/ still appears as the quoted search pattern in docs/plans/portfolio-ready.md and in the P1 row, which is the acceptance wording itself and not a path, so the literal acceptance is not met to the letter; gate after the P1 record: refused for slice P1 no independent pass and security stale at 85655e6, no column, State or self-check problem (rerun at the branch tip recorded in status.md); LICENSE diffed against the choosealicense.com MIT template fetched 2026-11-18 with 2026 and Ayman Abdalla filled in: identical apart from a leading blank line in the extracted template; git diff main --stat -- ios/ empty. | built | 2026-11-18 |
+| P3 | spend-core | look-and-feel (commit on that branch; recorded here because this plan owns the slice) | eade919610222cf57568eed337b3328b7a951b01 | git grep -c '/Users/' on look-and-feel reports no tracked file; the commit's diff changes only lines that contained the path; git ls-remote origin refs/heads/look-and-feel equals the local head. | self-check: sed replaced the home folder prefix with ~/ in docs/agents/build.md (21), docs/agents/status.md (1) and docs/plans/look-and-feel.md (2) on look-and-feel at eade919: 24 lines removed, every one held the prefix, 24 added; checks.md and ios/ untouched (git diff --stat empty for both); git grep for the username path on that tip: none; the bare string /Users/ does not appear on that branch at all; pushed 2026-11-18, git ls-remote shows eade919 for refs/heads/look-and-feel, equal to the local head; the branch's checks.md rows (LF1 fail, LF2 pass, LF3 fail, security pass at bb56cfa) are unchanged and still describe code commit bb56cfa, which this documentation commit does not alter. | built | 2026-11-18 |
 
 ## Scope and authorization
 
@@ -45,10 +48,10 @@ Action Button, full history/edit/delete, export, and reflection remain unbuilt.
 
 ## Reproduction and artifacts
 
-Repository root: `/Users/aympulse/aym/projects/spend-app`.
+Repository root: `~/aym/projects/spend-app`.
 Xcode: 27.2 (27B52). Runtime: iOS 26.5 (23F77). Simulator IDs are explicit below.
 The recorded runs also used separate derived-data paths and result bundles under
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard`; all test data is synthetic.
+`~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard`; all test data is synthetic.
 
 ```sh
 xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=6392B603-3453-49E8-9124-17FBBAC89C3D' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
@@ -62,12 +65,12 @@ xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platfor
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 
-- Pro: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-pro.log` and `acceptance-pro.xcresult`.
-- SE: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-se.log` and `acceptance-se.xcresult`.
-- Release: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-release.log`.
-- Parsed result summaries: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/test-summary-pro.json` and `test-summary-se.json`.
-- Tested source/project hashes: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/tested-source-sha256.txt`; matched unchanged files before the code commit.
-- Screenshots: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/dashboard-light.png`, `dashboard-se-light.png`, `quick-entry-light.png`, `quick-entry-storage-error.png`, `quick-entry-se-large-dark.png`, `dashboard-se-large-dark.png`.
+- Pro: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-pro.log` and `acceptance-pro.xcresult`.
+- SE: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-se.log` and `acceptance-se.xcresult`.
+- Release: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-release.log`.
+- Parsed result summaries: `~/aym/agents/outputs/spend/quick-entry-dashboard/test-summary-pro.json` and `test-summary-se.json`.
+- Tested source/project hashes: `~/aym/agents/outputs/spend/quick-entry-dashboard/tested-source-sha256.txt`; matched unchanged files before the code commit.
+- Screenshots: `~/aym/agents/outputs/spend/quick-entry-dashboard/dashboard-light.png`, `dashboard-se-light.png`, `quick-entry-light.png`, `quick-entry-storage-error.png`, `quick-entry-se-large-dark.png`, `dashboard-se-large-dark.png`.
 
 The dedicated simulator `SPEND Small Phone` is an iPhone SE 3rd generation using
 the existing iOS 26.5 runtime. It remains available for independent reproduction.
@@ -118,7 +121,7 @@ Record commits add `docs/agents/build.md`, `docs/agents/status.md`, and the empt
 
 ## Independent Check handoff
 
-Check slice 1 in /Users/aympulse/aym/projects/spend-app (branch quick-entry-dashboard)
+Check slice 1 in ~/aym/projects/spend-app (branch quick-entry-dashboard)
 against docs/PLAN.md with check-this, slice check; treat docs/agents/build.md as
 claims to verify, not evidence. Report only, except your own checks.md rows.
 Reproduce functional and security checks on latest non-record commit fb04a1d; use fresh result
@@ -166,7 +169,7 @@ implemented. Previous checker rows remain unchanged and apply to the older code.
 - **pending:** Independent functional/security recheck on `2495429`.
 
 Scratch evidence directory:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-check-followups/`.
+`~/aym/agents/work/spend-temp/2026-11-06-check-followups/`.
 It contains `baseline.log` / `.xcresult`, `red-protection-isolation.log` /
 `.xcresult`, `green-protection-isolation.log` / `.xcresult`,
 `green-policy-contract.log` / `.xcresult`, `red-policy-contract.log` /
@@ -186,7 +189,7 @@ StoreState before its fix. No manufactured test was added for the color edit or
 for audible output that cannot be heard in these automated tests.
 
 Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/check-followups/`.
+`~/aym/agents/outputs/spend/check-followups/`.
 Files: `test-summary-pro.json`, `test-summary-se.json`,
 `normal-journal-isolation.txt`, `tested-source-sha256.txt`,
 `dark-dashboard-pro.png`, `dark-dashboard-se.png`, `dark-recent-pro.png`,
@@ -260,12 +263,12 @@ persistence baseline passed first. `green-path-visibility` then passed all 25
 unit tests plus the focused relaunch UI test before the full suites ran.
 
 Scratch logs and result bundles:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-journal-folder/`:
+`~/aym/agents/work/spend-temp/2026-11-06-journal-folder/`:
 `baseline`, `red-path-visibility`, `green-path-visibility`, `acceptance-pro`,
 `acceptance-se` (each `.log` and `.xcresult`), plus `release-build.log`.
 
 Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/journal-folder/`:
+`~/aym/agents/outputs/spend/journal-folder/`:
 `test-summary-pro.json`, `test-summary-se.json`, `tested-source-sha256.txt`,
 `normal-journal-isolation.txt`, `dark-before-scroll-pro.png`,
 `dark-before-scroll-se.png`, `dark-recent-pro.png`, `dark-recent-se.png`.
@@ -398,7 +401,7 @@ kept, from the Agreed behavior table.
 
 ### Reproduction and artifacts
 
-Repository root: `/Users/aympulse/aym/projects/spend-app`. Xcode 27.2 (27B52),
+Repository root: `~/aym/projects/spend-app`. Xcode 27.2 (27B52),
 iOS 26.5 (23F77) runtime, XcodeGen 2.46.0. Test data is synthetic.
 
 ```sh
@@ -414,7 +417,7 @@ xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Relea
 ```
 
 Scratch logs and result bundles:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab1/`:
+`~/aym/agents/work/spend-temp/2026-11-07-action-button-ab1/`:
 `baseline`, `red`, `green`, `acceptance-pro`, `acceptance-se` (each `.log` and
 `.xcresult`), `release-build.log`, `release-build-after-comment.log`,
 `release-binary-*.sha`, `regen*.sha`, `tested-source-sha256.txt`,
@@ -427,7 +430,7 @@ attempt: `release-signed-build.log`, `attempt.log`, `attempt.xcresult`, full
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'platform=iOS Simulator,id=87D58183-18C9-453A-B535-ACEB34DB80D5'
 ```
 
-Deliverables: `/Users/aympulse/aym/agents/outputs/spend/action-button/ab1/`:
+Deliverables: `~/aym/agents/outputs/spend/action-button/ab1/`:
 `test-summary-pro.json`, `test-summary-se.json`, `shortcut-*-pro.png` and
 `shortcut-*-se.png` (Quick Entry at launch, Dashboard after save, journal retry
 screen, draft kept after second run), `shortcuts-app-attempt-1-library.png`,
@@ -546,13 +549,13 @@ xcrun devicectl device capture screenshot --device <iPhone UDID> --destination <
 ```
 
 The simulator suite commands are the same as AB1's. Scratch:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab2/`
+`~/aym/agents/work/spend-temp/2026-11-07-action-button-ab2/`
 (`red-clone/`, `green-clone/`, `fresh-clone/`, `acceptance-pro` and
 `acceptance-se` logs and result bundles, `release-build.log`,
 `clone-sim-build.log`, `fresh-clone-build.log`, `phone-build.log`,
 `phone-install.log`, settings dumps, `tested-change-sha256.txt`,
 `precommit-sha.txt`). Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/action-button/ab2/` (the 10
+`~/aym/agents/outputs/spend/action-button/ab2/` (the 10
 screenshots named above).
 
 ### Changed files
@@ -674,14 +677,14 @@ xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platfor
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 
-Scratch: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-transaction-history-h1/`
+Scratch: `~/aym/agents/work/spend-temp/2026-11-07-transaction-history-h1/`
 (`run-selfcheck.sh` runs the two suites, the Release build, the strings check
 and the journal hashes; `acceptance-pro` and `acceptance-se` logs and result
 bundles, `release-build.log`, `strings-check.txt`, `tested-source-sha256.txt`,
 `normal-journal-before.txt` and `-after.txt`, `project-run1.txt` and
 `project-run2.txt`, the red and green logs named above, `wrapfix-se` and
 `wrapfix2-se` bundles, `PurchaseRow.before-wrap-fix.swift`). Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/transaction-history/h1/`: named
+`~/aym/agents/outputs/spend/transaction-history/h1/`: named
 screenshots from the final (round 2) runs on Pro and SE (History light, both
 details, empty state, dark accessibility before and after scrolling, Quick Entry
 after the shortcut from History, Dashboard light and dark with the shared row and
@@ -730,7 +733,7 @@ See all), the round 1 `history-dark-accessibility-before-fix-pro.png` and
 
 ### Independent Check handoff
 
-Check slice H1 in /Users/aympulse/aym/projects/spend-app/.claude/worktrees/transaction-history
+Check slice H1 in ~/aym/projects/spend-app/.claude/worktrees/transaction-history
 (branch transaction-history) against docs/plans/transaction-history.md with
 check-this, slice check; treat docs/agents/build.md as claims to verify, not
 evidence. Report only, except your own checks.md rows. The latest code commit
