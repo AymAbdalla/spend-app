@@ -15,7 +15,7 @@ paragraph. Work happens on branch `look-and-feel` in the worktree
 
 Two visual picks are part of approving this plan: the icon concept (A, B or C)
 and the accent candidate (A, B or C). Sketches and contrast numbers live
-outside the repository in `/Users/aympulse/aym/agents/outputs/spend/look-and-feel/`
+outside the repository in `~/aym/agents/outputs/spend/look-and-feel/`
 (`icon-concepts-sheet.png`, one 1024-pixel render per concept and accent,
 `accent-contrast.md`). Recommendation: concept B with accent A.
 
@@ -151,7 +151,7 @@ and copies no product's design or branding.
 ### App icon
 
 - Three concepts are sketched at
-  `/Users/aympulse/aym/agents/outputs/spend/look-and-feel/icon-concepts-sheet.png`,
+  `~/aym/agents/outputs/spend/look-and-feel/icon-concepts-sheet.png`,
   each at 256 pixels and at the 60-pixel home-screen size on light and dark:
   **A Full stop** (the period of "SPEND." as a large dot, lower right),
   **B S. monogram** (a rounded S with its dot), **C Ring and dot** (a thin

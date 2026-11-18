@@ -45,10 +45,10 @@ Action Button, full history/edit/delete, export, and reflection remain unbuilt.
 
 ## Reproduction and artifacts
 
-Repository root: `/Users/aympulse/aym/projects/spend-app`.
+Repository root: `~/aym/projects/spend-app`.
 Xcode: 27.2 (27B52). Runtime: iOS 26.5 (23F77). Simulator IDs are explicit below.
 The recorded runs also used separate derived-data paths and result bundles under
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard`; all test data is synthetic.
+`~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard`; all test data is synthetic.
 
 ```sh
 xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platform=iOS Simulator,id=6392B603-3453-49E8-9124-17FBBAC89C3D' -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
@@ -62,12 +62,12 @@ xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platfor
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 
-- Pro: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-pro.log` and `acceptance-pro.xcresult`.
-- SE: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-se.log` and `acceptance-se.xcresult`.
-- Release: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-release.log`.
-- Parsed result summaries: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/test-summary-pro.json` and `test-summary-se.json`.
-- Tested source/project hashes: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/tested-source-sha256.txt`; matched unchanged files before the code commit.
-- Screenshots: `/Users/aympulse/aym/agents/outputs/spend/quick-entry-dashboard/dashboard-light.png`, `dashboard-se-light.png`, `quick-entry-light.png`, `quick-entry-storage-error.png`, `quick-entry-se-large-dark.png`, `dashboard-se-large-dark.png`.
+- Pro: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-pro.log` and `acceptance-pro.xcresult`.
+- SE: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-se.log` and `acceptance-se.xcresult`.
+- Release: `~/aym/agents/work/spend-temp/2026-11-06-quick-entry-dashboard/acceptance-release.log`.
+- Parsed result summaries: `~/aym/agents/outputs/spend/quick-entry-dashboard/test-summary-pro.json` and `test-summary-se.json`.
+- Tested source/project hashes: `~/aym/agents/outputs/spend/quick-entry-dashboard/tested-source-sha256.txt`; matched unchanged files before the code commit.
+- Screenshots: `~/aym/agents/outputs/spend/quick-entry-dashboard/dashboard-light.png`, `dashboard-se-light.png`, `quick-entry-light.png`, `quick-entry-storage-error.png`, `quick-entry-se-large-dark.png`, `dashboard-se-large-dark.png`.
 
 The dedicated simulator `SPEND Small Phone` is an iPhone SE 3rd generation using
 the existing iOS 26.5 runtime. It remains available for independent reproduction.
@@ -118,7 +118,7 @@ Record commits add `docs/agents/build.md`, `docs/agents/status.md`, and the empt
 
 ## Independent Check handoff
 
-Check slice 1 in /Users/aympulse/aym/projects/spend-app (branch quick-entry-dashboard)
+Check slice 1 in ~/aym/projects/spend-app (branch quick-entry-dashboard)
 against docs/PLAN.md with check-this, slice check; treat docs/agents/build.md as
 claims to verify, not evidence. Report only, except your own checks.md rows.
 Reproduce functional and security checks on latest non-record commit fb04a1d; use fresh result
@@ -166,7 +166,7 @@ implemented. Previous checker rows remain unchanged and apply to the older code.
 - **pending:** Independent functional/security recheck on `2495429`.
 
 Scratch evidence directory:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-check-followups/`.
+`~/aym/agents/work/spend-temp/2026-11-06-check-followups/`.
 It contains `baseline.log` / `.xcresult`, `red-protection-isolation.log` /
 `.xcresult`, `green-protection-isolation.log` / `.xcresult`,
 `green-policy-contract.log` / `.xcresult`, `red-policy-contract.log` /
@@ -186,7 +186,7 @@ StoreState before its fix. No manufactured test was added for the color edit or
 for audible output that cannot be heard in these automated tests.
 
 Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/check-followups/`.
+`~/aym/agents/outputs/spend/check-followups/`.
 Files: `test-summary-pro.json`, `test-summary-se.json`,
 `normal-journal-isolation.txt`, `tested-source-sha256.txt`,
 `dark-dashboard-pro.png`, `dark-dashboard-se.png`, `dark-recent-pro.png`,
@@ -260,12 +260,12 @@ persistence baseline passed first. `green-path-visibility` then passed all 25
 unit tests plus the focused relaunch UI test before the full suites ran.
 
 Scratch logs and result bundles:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-06-journal-folder/`:
+`~/aym/agents/work/spend-temp/2026-11-06-journal-folder/`:
 `baseline`, `red-path-visibility`, `green-path-visibility`, `acceptance-pro`,
 `acceptance-se` (each `.log` and `.xcresult`), plus `release-build.log`.
 
 Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/journal-folder/`:
+`~/aym/agents/outputs/spend/journal-folder/`:
 `test-summary-pro.json`, `test-summary-se.json`, `tested-source-sha256.txt`,
 `normal-journal-isolation.txt`, `dark-before-scroll-pro.png`,
 `dark-before-scroll-se.png`, `dark-recent-pro.png`, `dark-recent-se.png`.
@@ -398,7 +398,7 @@ kept, from the Agreed behavior table.
 
 ### Reproduction and artifacts
 
-Repository root: `/Users/aympulse/aym/projects/spend-app`. Xcode 27.2 (27B52),
+Repository root: `~/aym/projects/spend-app`. Xcode 27.2 (27B52),
 iOS 26.5 (23F77) runtime, XcodeGen 2.46.0. Test data is synthetic.
 
 ```sh
@@ -414,7 +414,7 @@ xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Relea
 ```
 
 Scratch logs and result bundles:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab1/`:
+`~/aym/agents/work/spend-temp/2026-11-07-action-button-ab1/`:
 `baseline`, `red`, `green`, `acceptance-pro`, `acceptance-se` (each `.log` and
 `.xcresult`), `release-build.log`, `release-build-after-comment.log`,
 `release-binary-*.sha`, `regen*.sha`, `tested-source-sha256.txt`,
@@ -427,7 +427,7 @@ attempt: `release-signed-build.log`, `attempt.log`, `attempt.xcresult`, full
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'platform=iOS Simulator,id=87D58183-18C9-453A-B535-ACEB34DB80D5'
 ```
 
-Deliverables: `/Users/aympulse/aym/agents/outputs/spend/action-button/ab1/`:
+Deliverables: `~/aym/agents/outputs/spend/action-button/ab1/`:
 `test-summary-pro.json`, `test-summary-se.json`, `shortcut-*-pro.png` and
 `shortcut-*-se.png` (Quick Entry at launch, Dashboard after save, journal retry
 screen, draft kept after second run), `shortcuts-app-attempt-1-library.png`,
@@ -546,13 +546,13 @@ xcrun devicectl device capture screenshot --device <iPhone UDID> --destination <
 ```
 
 The simulator suite commands are the same as AB1's. Scratch:
-`/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-action-button-ab2/`
+`~/aym/agents/work/spend-temp/2026-11-07-action-button-ab2/`
 (`red-clone/`, `green-clone/`, `fresh-clone/`, `acceptance-pro` and
 `acceptance-se` logs and result bundles, `release-build.log`,
 `clone-sim-build.log`, `fresh-clone-build.log`, `phone-build.log`,
 `phone-install.log`, settings dumps, `tested-change-sha256.txt`,
 `precommit-sha.txt`). Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/action-button/ab2/` (the 10
+`~/aym/agents/outputs/spend/action-button/ab2/` (the 10
 screenshots named above).
 
 ### Changed files
@@ -674,14 +674,14 @@ xcodebuild test -project ios/SPEND.xcodeproj -scheme SPEND -destination 'platfor
 xcodebuild build -project ios/SPEND.xcodeproj -scheme SPEND -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 
-Scratch: `/Users/aympulse/aym/agents/work/spend-temp/2026-11-07-transaction-history-h1/`
+Scratch: `~/aym/agents/work/spend-temp/2026-11-07-transaction-history-h1/`
 (`run-selfcheck.sh` runs the two suites, the Release build, the strings check
 and the journal hashes; `acceptance-pro` and `acceptance-se` logs and result
 bundles, `release-build.log`, `strings-check.txt`, `tested-source-sha256.txt`,
 `normal-journal-before.txt` and `-after.txt`, `project-run1.txt` and
 `project-run2.txt`, the red and green logs named above, `wrapfix-se` and
 `wrapfix2-se` bundles, `PurchaseRow.before-wrap-fix.swift`). Deliverables:
-`/Users/aympulse/aym/agents/outputs/spend/transaction-history/h1/`: named
+`~/aym/agents/outputs/spend/transaction-history/h1/`: named
 screenshots from the final (round 2) runs on Pro and SE (History light, both
 details, empty state, dark accessibility before and after scrolling, Quick Entry
 after the shortcut from History, Dashboard light and dark with the shared row and
@@ -730,7 +730,7 @@ See all), the round 1 `history-dark-accessibility-before-fix-pro.png` and
 
 ### Independent Check handoff
 
-Check slice H1 in /Users/aympulse/aym/projects/spend-app/.claude/worktrees/transaction-history
+Check slice H1 in ~/aym/projects/spend-app/.claude/worktrees/transaction-history
 (branch transaction-history) against docs/plans/transaction-history.md with
 check-this, slice check; treat docs/agents/build.md as claims to verify, not
 evidence. Report only, except your own checks.md rows. The latest code commit
