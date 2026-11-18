@@ -8,10 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		0E466B4C36B13559B905A7E8 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7B09949CE3F0E23D15A45E /* HistoryView.swift */; };
+		116BAA9987BE52D5115F011C /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 46FEFE591C6FB495DFB991AD /* AppIcon.icon */; };
 		16E97E3053A27B3CF1F0F31A /* LogPurchaseShortcutUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6405231084B40214F8AFB53 /* LogPurchaseShortcutUITests.swift */; };
 		17334C4BEAF5168423EEF3F9 /* QuickEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C0D8560A011C9369DA81CC /* QuickEntryView.swift */; };
+		1AEA697A08B08483772670F0 /* DashboardLayoutUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D7CF93317C344A896030D /* DashboardLayoutUITests.swift */; };
 		29E9838B1CFDDC60163F9FDB /* DaySectionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1481E4CFA236212B67DD12 /* DaySectionsTests.swift */; };
 		4285628D77D638028460344C /* SummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BF4E029BB7D32F3920CDF9 /* SummaryTests.swift */; };
+		4CF90F76CB326A6181E563F4 /* SpendCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21892940BDBF383B2F44602 /* SpendCard.swift */; };
+		514C116C8F46FD0976735A0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2062EEAD1B70C7C8D8D2DB7F /* Assets.xcassets */; };
 		5550D45AC3ADCE9EF8519C96 /* SpendApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21355AE4A19A9F922BE0E687 /* SpendApp.swift */; };
 		5A2EE80D209D02FF48DBD7AA /* JournalUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B5F7B6EEC8E215D87A5EA5 /* JournalUITests.swift */; };
 		631AE98523E11994ED3F2C0E /* DaySections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2FD73A946F3F8FF6557D12 /* DaySections.swift */; };
@@ -23,6 +27,7 @@
 		9438F33FDE68EEE5F6E5720A /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E7B7195679ECD15D1EFDB4 /* AppConfiguration.swift */; };
 		B2474B08B23CEF0C647964C1 /* SpendShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C479D08E99507B1C4920A1B6 /* SpendShortcuts.swift */; };
 		B404AC7E58131822EA862447 /* SpendingSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B75CF6460C1CBF27C9023B /* SpendingSummary.swift */; };
+		BA11EDBC86512F9155A73FAA /* AccessibilityAuditUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8198F66732C6C40762926C25 /* AccessibilityAuditUITests.swift */; };
 		BBA128A8507D6D1FCAD8306F /* HistoryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7724BAA696F633B7213E7943 /* HistoryUITests.swift */; };
 		CBD1D4BA7C3CB000605D4855 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9BF73F0602D3CEE7945048 /* DashboardView.swift */; };
 		CFB7080A17DB23297FC7A650 /* PurchaseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F6D243ABE82CA16C8BA611 /* PurchaseDetailView.swift */; };
@@ -54,10 +59,12 @@
 /* Begin PBXFileReference section */
 		08B75CF6460C1CBF27C9023B /* SpendingSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendingSummary.swift; sourceTree = "<group>"; };
 		1D2FD73A946F3F8FF6557D12 /* DaySections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySections.swift; sourceTree = "<group>"; };
+		2062EEAD1B70C7C8D8D2DB7F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		21355AE4A19A9F922BE0E687 /* SpendApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendApp.swift; sourceTree = "<group>"; };
 		3F1481E4CFA236212B67DD12 /* DaySectionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySectionsTests.swift; sourceTree = "<group>"; };
 		426F16CFBC3C0E85B1508A31 /* PurchaseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseRow.swift; sourceTree = "<group>"; };
 		46E7B7195679ECD15D1EFDB4 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		46FEFE591C6FB495DFB991AD /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		51BF4E029BB7D32F3920CDF9 /* SummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryTests.swift; sourceTree = "<group>"; };
 		549A40E010E86A31CDFE38B3 /* QuickEntryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryRequest.swift; sourceTree = "<group>"; };
 		631AD68F37C36A6B7E4FF13C /* RecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryTests.swift; sourceTree = "<group>"; };
@@ -65,6 +72,7 @@
 		738CEA8C0FB67A9AC78BF94A /* SPENDUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SPENDUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7724BAA696F633B7213E7943 /* HistoryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryUITests.swift; sourceTree = "<group>"; };
 		7B7B09949CE3F0E23D15A45E /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		8198F66732C6C40762926C25 /* AccessibilityAuditUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityAuditUITests.swift; sourceTree = "<group>"; };
 		8C3D28190BC1F0835789F140 /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
 		8FA87B15BBC34FE18FCE1863 /* StoreState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreState.swift; sourceTree = "<group>"; };
 		96F6D243ABE82CA16C8BA611 /* PurchaseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseDetailView.swift; sourceTree = "<group>"; };
@@ -72,6 +80,7 @@
 		A58B78B7CCF1D4ED1F187D77 /* SPENDTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SPENDTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6405231084B40214F8AFB53 /* LogPurchaseShortcutUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPurchaseShortcutUITests.swift; sourceTree = "<group>"; };
 		AD0587DDD3CC98922B25F25C /* SPEND.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SPEND.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B04D7CF93317C344A896030D /* DashboardLayoutUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardLayoutUITests.swift; sourceTree = "<group>"; };
 		BAAA2B29D96DD832E31AFD92 /* JournalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalTests.swift; sourceTree = "<group>"; };
 		C247E3D5C7B85A14B7C6AC9E /* QuickEntrySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntrySession.swift; sourceTree = "<group>"; };
 		C479D08E99507B1C4920A1B6 /* SpendShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendShortcuts.swift; sourceTree = "<group>"; };
@@ -79,11 +88,20 @@
 		CE9BF73F0602D3CEE7945048 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		D06D59BD85651C92D9A9DCE8 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		D0C0D8560A011C9369DA81CC /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
+		E21892940BDBF383B2F44602 /* SpendCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendCard.swift; sourceTree = "<group>"; };
 		F5029E85D83B1C93BC176FA8 /* LogPurchaseIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPurchaseIntentTests.swift; sourceTree = "<group>"; };
 		F63D1C9CBA944A8C6E3BB346 /* Purchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Purchase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		16579A64E9F7C614FEEC5DAF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				E21892940BDBF383B2F44602 /* SpendCard.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		1B7FAB02B99EDA7276AF631F /* Intents */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,6 +169,7 @@
 				EC74F14914F49F8EB73819A8 /* Dashboard */,
 				A9045B04435DA88B0F1061A8 /* History */,
 				D2276406FC3642C139ABE879 /* QuickEntry */,
+				16579A64E9F7C614FEEC5DAF /* Shared */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -185,6 +204,8 @@
 		D5B313AA73EAE1D28FB30ECB /* SPEND */ = {
 			isa = PBXGroup;
 			children = (
+				46FEFE591C6FB495DFB991AD /* AppIcon.icon */,
+				2062EEAD1B70C7C8D8D2DB7F /* Assets.xcassets */,
 				8B4483DF70488320042F51AB /* App */,
 				A11B73E89F0BF060C12C05CA /* Features */,
 				1B7FAB02B99EDA7276AF631F /* Intents */,
@@ -208,6 +229,8 @@
 		EB5750094C624AE7779CB6C3 /* SPENDUITests */ = {
 			isa = PBXGroup;
 			children = (
+				8198F66732C6C40762926C25 /* AccessibilityAuditUITests.swift */,
+				B04D7CF93317C344A896030D /* DashboardLayoutUITests.swift */,
 				7724BAA696F633B7213E7943 /* HistoryUITests.swift */,
 				64B5F7B6EEC8E215D87A5EA5 /* JournalUITests.swift */,
 				A6405231084B40214F8AFB53 /* LogPurchaseShortcutUITests.swift */,
@@ -249,6 +272,7 @@
 			buildConfigurationList = 14C221442DA7284E0BF3451F /* Build configuration list for PBXNativeTarget "SPEND" */;
 			buildPhases = (
 				F16A781A052B31CBA57D477A /* Sources */,
+				280AFE5A8A0A7C46DF050ACA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -321,6 +345,18 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		280AFE5A8A0A7C46DF050ACA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				116BAA9987BE52D5115F011C /* AppIcon.icon in Resources */,
+				514C116C8F46FD0976735A0F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		A0CDE7972E5A5912F78AEB71 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -338,6 +374,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA11EDBC86512F9155A73FAA /* AccessibilityAuditUITests.swift in Sources */,
+				1AEA697A08B08483772670F0 /* DashboardLayoutUITests.swift in Sources */,
 				BBA128A8507D6D1FCAD8306F /* HistoryUITests.swift in Sources */,
 				5A2EE80D209D02FF48DBD7AA /* JournalUITests.swift in Sources */,
 				16E97E3053A27B3CF1F0F31A /* LogPurchaseShortcutUITests.swift in Sources */,
@@ -362,6 +400,7 @@
 				F40470D04251A6D41CEB372E /* QuickEntrySession.swift in Sources */,
 				17334C4BEAF5168423EEF3F9 /* QuickEntryView.swift in Sources */,
 				5550D45AC3ADCE9EF8519C96 /* SpendApp.swift in Sources */,
+				4CF90F76CB326A6181E563F4 /* SpendCard.swift in Sources */,
 				B2474B08B23CEF0C647964C1 /* SpendShortcuts.swift in Sources */,
 				B404AC7E58131822EA862447 /* SpendingSummary.swift in Sources */,
 				86F59FA3CEDC00AE1C9851FB /* StoreState.swift in Sources */,
@@ -388,6 +427,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_KEY_CFBundleDisplayName = SPEND.;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -456,6 +496,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_KEY_CFBundleDisplayName = SPEND.;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";

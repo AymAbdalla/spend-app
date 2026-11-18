@@ -21,7 +21,9 @@ struct PurchaseDetailView: View {
                         .accessibilityIdentifier("detailDate")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 8)
+                // The hero uses the card padding token; the List keeps its own shape.
+                .listRowInsets(EdgeInsets(top: SpendDesign.cardPadding, leading: SpendDesign.cardPadding,
+                                          bottom: SpendDesign.cardPadding, trailing: SpendDesign.cardPadding))
             }
             Section("Details") {
                 LabeledContent("Category") {

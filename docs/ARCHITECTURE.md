@@ -165,15 +165,22 @@ existing stores, and failures without purchase loss. The simulator does not
 expose the file-protection class on readback; these checks prove the requested
 policy, not hardware encryption or lock/unlock enforcement on an iPhone.
 
-Native text styles, system surfaces, a system accent, scrolling forms, labelled
-controls, an inset grouped list for History and the detail, and vertical
-summary rows at accessibility text sizes form the initial design system. Quick Entry places its Done control in a safe-area inset above
-the keyboard, keeping it reachable without a custom keyboard. Dashboard cards use
-`secondarySystemGroupedBackground` to retain a distinct surface in both
-appearances. A successful save posts an accessibility announcement after sheet
-dismissal; cancellation and failed saves do not announce success. Spoken output
-still needs physical VoiceOver acceptance. See `PLAN.md` for
-the reviewed UI references and approved scope.
+The design system is written down in `DESIGN.md`: one brand accent
+(`AccentColor` in `SPEND/Assets.xcassets`, deep teal with light and dark
+variants, applied to every tinted control by the global accent setting in
+`project.yml`), system grouped surfaces, native text styles, the `SpendCard`
+modifier and `SpendDesign` tokens in `Features/Shared`, scrolling forms,
+labelled controls, an inset grouped list for History and the detail, and
+vertical summary rows at accessibility text sizes. Every Dashboard section is
+a card, with the recent purchases third so the purchase just saved shows
+without scrolling. Quick Entry places its Done control in a safe-area inset
+above the keyboard, keeping it reachable without a custom keyboard. A
+successful save posts an accessibility announcement after sheet dismissal;
+cancellation and failed saves do not announce success. Spoken output still
+needs physical VoiceOver acceptance. The app icon is an Icon Composer package,
+`SPEND/AppIcon.icon`, that `project.yml` lists as one file resource. See
+`PLAN.md` for the reviewed UI references and approved scope, and
+`plans/look-and-feel.md` for the look-and-feel round.
 
 ## Important Decisions
 

@@ -60,7 +60,9 @@ struct HistoryView: View {
                 .accessibilityIdentifier("daySection." + key)
         } trailing: {
             Text(Money.format(section.total))
-                .fontWeight(.semibold).monospacedDigit().foregroundStyle(.primary)
+                // The concrete Color.primary: the hierarchical .primary resolves to
+                // secondary inside a section header, which hid the total.
+                .fontWeight(.semibold).monospacedDigit().foregroundStyle(Color.primary)
                 .accessibilityIdentifier("dayTotal." + key)
         }
         .textCase(nil)

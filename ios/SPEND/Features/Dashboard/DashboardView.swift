@@ -2,6 +2,10 @@ import SwiftUI
 import SwiftData
 import Combine
 
+/// Sections, top to bottom: tagline; "Purchase saved." when shown; Today;
+/// This week and This month; Recent purchases with See all; This month by
+/// category; This month by intention; the USD footnote. Every section is a
+/// `SpendCard`, so the purchase you just saved shows without scrolling.
 struct DashboardView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -17,7 +21,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: SpendDesign.sectionGap) {
                     Text("Feel every dollar.")
                         .font(.title3)
                         .foregroundStyle(.secondary)
@@ -26,14 +30,13 @@ struct DashboardView: View {
                             .accessibilityIdentifier("saveConfirmation")
                     }
                     summaryContent
-                    recentPurchases
                     Text("All amounts in USD. Stored on this device.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                .padding(20)
+                .padding(SpendDesign.pageMargin)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(SpendDesign.pageBackground)
             .navigationTitle("SPEND.")
             .navigationDestination(for: HistoryDestination.self) { _ in HistoryView() }
             .navigationDestination(for: Purchase.self) { PurchaseDetailView(purchase: $0) }
@@ -48,7 +51,7 @@ struct DashboardView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .accessibilityIdentifier("addPurchase")
-                .padding(.horizontal, 20)
+                .padding(.horizontal, SpendDesign.pageMargin)
                 .padding(.vertical, 12)
                 .background(.bar)
             }
@@ -85,49 +88,69 @@ struct DashboardView: View {
         if !showingEntry { openEntry() }
     }
 
+    /// The totals in the agreed order, with the recent purchases third. If the
+    /// totals can't be calculated, the message replaces them and the recent
+    /// purchases still show.
     @ViewBuilder private var summaryContent: some View {
         switch Result(catching: { try SpendingSummary.calculate(purchases.map(\.record), now: now, calendar: .autoupdatingCurrent) }) {
         case .success(let summary):
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Today").font(.headline).foregroundStyle(.secondary)
-                Text(Money.format(summary.today))
-                    .font(.system(.largeTitle, design: .rounded, weight: .semibold))
-                    .monospacedDigit()
-                    .accessibilityIdentifier("todayTotal")
-                Text(now.formatted(date: .complete, time: .omitted))
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(20)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            VStack(spacing: 16) {
-                totalRow("This week", amount: summary.week, identifier: "weekTotal")
-                Divider()
-                totalRow("This month", amount: summary.month, identifier: "monthTotal")
-            }
-            .padding(20)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            VStack(alignment: .leading, spacing: 16) {
-                Text("This month by category").font(.headline)
-                if summary.categories.isEmpty {
-                    Text("Categories will appear as you log purchases.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(PurchaseCategory.allCases.filter { summary.categories[$0] != nil }) { category in
-                        totalRow(category.title, amount: summary.categories[category, default: 0],
-                                 identifier: "categoryTotal." + category.rawValue)
-                    }
-                }
-            }
-            VStack(alignment: .leading, spacing: 16) {
-                Text("This month by intention").font(.headline)
-                ForEach(SpendingType.allCases) { type in
-                    totalRow(type.title, amount: summary.types[type, default: 0], identifier: "typeTotal." + type.rawValue)
-                }
-            }
+            todayCard(summary)
+            periodCard(summary)
+            recentPurchases
+            categoryCard(summary)
+            intentionCard(summary)
         case .failure(let error):
             Label(error.localizedDescription, systemImage: "exclamationmark.circle")
+            recentPurchases
         }
+    }
+
+    private func todayCard(_ summary: SpendingSummary) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Today").font(.headline).foregroundStyle(.secondary)
+            Text(Money.format(summary.today))
+                .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                .monospacedDigit()
+                .accessibilityIdentifier("todayTotal")
+            Text(now.formatted(date: .complete, time: .omitted))
+                .font(.footnote).foregroundStyle(.secondary)
+        }
+        .spendCard()
+    }
+
+    private func periodCard(_ summary: SpendingSummary) -> some View {
+        VStack(spacing: SpendDesign.rowGap) {
+            totalRow("This week", amount: summary.week, identifier: "weekTotal")
+            Divider()
+            totalRow("This month", amount: summary.month, identifier: "monthTotal")
+        }
+        .spendCard()
+    }
+
+    private func categoryCard(_ summary: SpendingSummary) -> some View {
+        VStack(alignment: .leading, spacing: SpendDesign.rowGap) {
+            Text("This month by category").font(.headline)
+            if summary.categories.isEmpty {
+                Text("Categories will appear as you log purchases.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(PurchaseCategory.allCases.filter { summary.categories[$0] != nil }) { category in
+                    totalRow(category.title, amount: summary.categories[category, default: 0],
+                             identifier: "categoryTotal." + category.rawValue)
+                }
+            }
+        }
+        .spendCard()
+    }
+
+    private func intentionCard(_ summary: SpendingSummary) -> some View {
+        VStack(alignment: .leading, spacing: SpendDesign.rowGap) {
+            Text("This month by intention").font(.headline)
+            ForEach(SpendingType.allCases) { type in
+                totalRow(type.title, amount: summary.types[type, default: 0], identifier: "typeTotal." + type.rawValue)
+            }
+        }
+        .spendCard()
     }
 
     private func totalRow(_ title: String, amount: Int64, identifier: String) -> some View {
@@ -141,32 +164,45 @@ struct DashboardView: View {
         }
     }
 
-    /// The five newest purchases; each opens its detail, and See all opens History.
+    /// The five newest purchases in one card, separated by dividers. Each row
+    /// opens its detail, so it ends in a chevron; See all opens History.
     private var recentPurchases: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let recent = Array(purchases.prefix(5))
+        return VStack(alignment: .leading, spacing: SpendDesign.rowGap) {
             HStack(alignment: .firstTextBaseline) {
                 Text("Recent purchases").font(.headline)
                 Spacer(minLength: 8)
-                NavigationLink("See all", value: HistoryDestination())
-                    .font(.subheadline.weight(.medium))
-                    .accessibilityIdentifier("seeAllPurchases")
+                // The label is small text, so the link itself is given a 44-point hit area.
+                NavigationLink(value: HistoryDestination()) {
+                    Text("See all")
+                        .font(.subheadline.weight(.medium))
+                        .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("seeAllPurchases")
             }
-            if purchases.isEmpty {
+            if recent.isEmpty {
                 Text("Start with one purchase.").font(.title3.weight(.medium))
                 Text("Record what you spent, then see where it goes.")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(Array(purchases.prefix(5))) { purchase in
+                ForEach(recent) { purchase in
+                    if purchase != recent.first { Divider() }
                     NavigationLink(value: purchase) {
-                        PurchaseRow(purchase: purchase, dateStyle: .dateAndTime)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(16)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
+                        HStack(spacing: 12) {
+                            PurchaseRow(purchase: purchase, dateStyle: .dateAndTime)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                                .accessibilityHidden(true)
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("purchaseRow")
                 }
             }
         }
+        .spendCard()
     }
 }
