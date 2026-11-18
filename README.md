@@ -206,4 +206,6 @@ xcodegen generate --spec ios/project.yml
 
 ## License
 
-[MIT](LICENSE).
+Copyright (c) 2026 Ayman Abdalla. All rights reserved. You can read the code
+here; you may not copy, change or reuse it without written permission. See
+[LICENSE](LICENSE).
