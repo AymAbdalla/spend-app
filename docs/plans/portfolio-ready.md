@@ -1,9 +1,12 @@
 # Portfolio-ready plan
 
-Status: approved 2026-11-18 by the owner's "go" (P3 included; the open
-decisions at their defaults: screenshots as given, tool names kept in the
-"How this was built" section, that section in the first person), Build in
-progress. Source of agreement: Clarify on
+Status: built (P1 to P3, 2026-11-18). Approved 2026-11-18 by the owner's
+"go" (P3 included; the open decisions at their defaults: screenshots as
+given, tool names kept in the "How this was built" section, that section in
+the first person). The independent Check was skipped on the owner's
+instruction on 2026-11-18, and the owner authorized Ship the same day
+(merge, description and topics, public, delete the merged remote branches).
+Source of agreement: Clarify on
 2026-11-18, where the owner answered four questions (showcase `main` as it
 is and leave `look-and-feel` unmerged; plan for a public repository; MIT
 license; README only, using the owner's four iPhone screenshots);
