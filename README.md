@@ -83,8 +83,9 @@ reasoning behind each choice is in
 
 ## How it was verified
 
-- **Automated tests.** 49 tests (34 unit, 15 UI) pass on iPhone 17 Pro and
-  iPhone SE-size simulators on iOS 26.5, none skipped, and the Release
+- **Automated tests.** 56 tests (34 unit, 22 UI) passed on iPhone 17 Pro
+  and iPhone SE-size simulators on iOS 26.5 in the latest independent check
+  (Nov 8, 2026), none skipped, and the Release
   simulator build succeeds with the DEBUG-only test hooks absent from the
   binary. Tests use synthetic purchases and isolated stores and never touch
   the normal journal.
@@ -108,32 +109,36 @@ check for each, and nothing is built until I approve it. Claude Code builds
 each slice and records what it did and what it checked in
 `docs/agents/build.md`, as a claim. A separate Claude Code session with no
 memory of the build then checks the slice against the plan, reruns
-everything, and writes `docs/agents/checks.md`. A slice merges only when its
-check passes, and a failed check stays in the log. The decisions along the
+everything, and writes `docs/agents/checks.md`. A failed check stays in the
+log. Slices merge after their check passes; the one exception so far,
+look-and-feel, is described under Status. The decisions along the
 way, with their reasons and limits, are numbered in `docs/DECISIONS.md`.
 
 ## Status and known limits
 
-`main` holds version 0.1.0 (merged and tagged `v0.1.0` on 2026-11-07) plus
-History (merged the same day). It has been installed from Xcode on one
-iPhone; there is no TestFlight or App Store build. See
-[CHANGELOG.md](CHANGELOG.md).
+`main` holds version 0.1.0 (merged and tagged `v0.1.0` on 2026-11-07),
+History (merged the same day) and look-and-feel (merged 2026-11-18). It has
+been installed from Xcode on one iPhone; there is no TestFlight or App Store
+build. See [CHANGELOG.md](CHANGELOG.md).
 
-Branch [`look-and-feel`](https://github.com/AymAbdalla/spend-app/tree/look-and-feel)
-(built 2026-11-08) adds an app icon, one accent color, Dashboard cards, a
-written design system and Apple's accessibility audit in the UI tests. Its
-independent check passed one of its three slices and the security pass, and
-failed the other two slices on one finding each, so it is not merged.
+Look-and-feel adds an app icon, one accent color, Dashboard cards, a written
+design system ([docs/DESIGN.md](docs/DESIGN.md)) and Apple's accessibility
+audit in the UI tests. Its independent check passed one of its three slices
+and the security pass, and failed the other two on one finding each: Save
+and Cancel in Quick Entry don't take the accent color on iOS 26.5, and the
+accessibility audit skips contrast issues more broadly than its stated
+reason. I merged it with those two findings open; both are listed below.
 
 Known limits on `main`:
 
 - No edit or delete, no category filter or search, no CSV export, no weekly
   reflection. Deleting the app erases its journal, so use fake purchases
   while testing.
-- No app icon yet; the Action Button setting and the Shortcuts app show a
-  placeholder.
-- On the iPhone 18 Pro at default text size, the first recent purchase sits
-  behind the Add purchase bar until you scroll.
+- Save and Cancel in Quick Entry show black or white text instead of the
+  accent color on iOS 26.5.
+- The accessibility audit in the UI tests skips every contrast issue that
+  has no element, on every screen, so it does not prove the app passes
+  Apple's contrast checks.
 - USD only, positive amounts only.
 - Not tested anywhere: iOS 17 to 25, spoken VoiceOver on a phone, Siri by
   voice and Spotlight.
